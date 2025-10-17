@@ -10,11 +10,19 @@ declare module 'vue' {
   export interface GlobalComponents {
     Aurora: typeof import('./src/components/backgrounds/Aurora.vue')['default']
     Button: typeof import('primevue/button')['default']
+    Card: typeof import('primevue/card')['default']
+    CaseInputArea: typeof import('./src/components/CaseInputArea.vue')['default']
     Checkbox: typeof import('primevue/checkbox')['default']
+    Fieldset: typeof import('primevue/fieldset')['default']
+    Footer: typeof import('./src/components/Footer.vue')['default']
     InputText: typeof import('primevue/inputtext')['default']
+    LeftSidebar: typeof import('./src/components/LeftSidebar.vue')['default']
     MegaMenu: typeof import('primevue/megamenu')['default']
     Password: typeof import('primevue/password')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+  }
+  export interface GlobalDirectives {
+    Tooltip: typeof import('primevue/tooltip')['default']
   }
 }

@@ -52,6 +52,19 @@ const store = useDataStore();
 // bind to window for debugging
 (window as any).store = store;
 
+// bind color scheme to store
+const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+function handleThemeChange(event: MediaQueryListEvent) {
+  if (event.matches) {
+    store.color_scheme = 'dark';
+  } else {
+    store.color_scheme = 'light';
+  }
+}
+
+darkModeMediaQuery.addEventListener('change', handleThemeChange);
+
 ///////////////////////////////////////////////////////////
 // Router
 ///////////////////////////////////////////////////////////

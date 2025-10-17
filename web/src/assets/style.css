@@ -4,8 +4,17 @@
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: var(--text-color);
+  background-color: var(--background-color);
+
+  --text-color: rgba(255, 255, 255, 0.87);
+  --background-color: rgb(36, 36, 36);
+  --border-color: rgba(0, 0, 0, 0.1);
+  --shadow-color: rgba(221, 221, 221, 0.1);
+  
+  --hover-color: rgba(0, 0, 0, 0.1);
+
+  --footer-background-color: rgb(24, 24, 24);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -16,6 +25,7 @@
 body {
   margin: 0;
   min-height: 100vh;
+  overflow: hidden;
 }
 
 #app {
@@ -23,11 +33,18 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    --text-color: #213547;
+    --background-color: rgb(255, 255, 255);
+    --border-color: rgb(213, 213, 213);
+    --shadow-color: rgba(0, 0, 0, 0.1);
+
+    --hover-color: rgba(255, 255, 255, 0.3);
+
+    --footer-background-color: rgb(230, 230, 230);
   }
 }

@@ -23,5 +23,5 @@ cp dotenv.tpl .env
 Then, start dev server
 
 ```bash
-deno run --env-file vite
+deno run --env-file dev
 ```

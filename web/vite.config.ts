@@ -10,12 +10,8 @@ export default () => {
   console.log('* loading env vars...');
   console.log(`  SUPABASE_URL: ${toolbox.truncate(process.env.VITE_SUPABASE_URL ?? '')}`);
   console.log(`  SUPABASE_KEY: ${toolbox.truncate(process.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? '')}`);
-  console.log(`  BASE_URL: ${toolbox.truncate(process.env.VITE_BASE_URL ?? '')}`);
-
-
   let BASE_URL = process.env.VITE_BASE_URL ?? './';
-  console.log('* VITE_BASE_URL_ALIAS:', process.env.VITE_BASE_URL_ALIAS);
-
+  console.log(`  BASE_URL: ${toolbox.truncate(process.env.VITE_BASE_URL ?? '')}`);
 
   return defineConfig({
     base: BASE_URL,

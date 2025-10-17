@@ -1,5 +1,5 @@
 # APP configs
-VITE_BASE_URL_ALIAS=./
+VITE_BASE_URL=./
 
 # SUPABASE configs
 VITE_SUPABASE_URL=
