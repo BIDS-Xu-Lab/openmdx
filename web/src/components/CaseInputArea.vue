@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-
+import router from '../router';
 const input_text = ref('');
 const el_textarea = ref(null);
 const n_rows = ref(1);
 
 const onClickSubmit = () => {
     console.log(input_text.value);
+
+    router.push('/analyze');
 }
 
 const samples = {

@@ -100,9 +100,9 @@ struct ColorStop {
 #define COLOR_RAMP(colors, factor, finalColor) {              \
   int index = 0;                                            \
   for (int i = 0; i < 2; i++) {                               \
-     ColorStop currentColor = colors[i];                    \
-     bool isInBetween = currentColor.position <= factor;    \
-     index = int(mix(float(index), float(i), float(isInBetween))); \
+    ColorStop currentColor = colors[i];                    \
+    bool isInBetween = currentColor.position <= factor;    \
+    index = int(mix(float(index), float(i), float(isInBetween))); \
   }                                                         \
   ColorStop currentColor = colors[index];                   \
   ColorStop nextColor = colors[index + 1];                  \
@@ -169,7 +169,7 @@ const initAurora = () => {
     const width = Math.max(parentWidth, 300);
     const height = Math.max(parentHeight, 300);
 
-    renderer!.setSize(width, height);
+    renderer?.setSize(width, height);
     if (program) {
       program.uniforms.uResolution.value = [width, height];
     }

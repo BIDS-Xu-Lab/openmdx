@@ -1,4 +1,9 @@
 @import "tailwindcss";
+/* these are necessary styles for vue flow */
+@import '@vue-flow/core/dist/style.css';
+
+/* this contains the default theme, these are optional styles */
+@import '@vue-flow/core/dist/theme-default.css';
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -34,6 +39,26 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
+
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  justify-content: start;
+}
+.main-container {
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-width: calc(100% - 3rem);
+    z-index: 10;
+    height: 100vh;
+    overflow-y: auto;
+    background: transparent;
+}
+.main-content {
+    position: relative;
+    z-index: 10;
+    width: 100%;
 }
 
 @media (prefers-color-scheme: light) {
@@ -45,6 +70,6 @@ body {
 
     --hover-color: rgba(255, 255, 255, 0.3);
 
-    --footer-background-color: rgb(230, 230, 230);
+    --footer-background-color: rgb(240, 240, 240);
   }
 }

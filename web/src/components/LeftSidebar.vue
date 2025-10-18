@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { ref } from "vue";
-
-const flag_sidebar_open = ref(false);
+import { useDataStore } from '../stores/DataStore';
+import router from '../router';
+const data_store = useDataStore();
 
 const onClickToggleSidebar = () => {
-    flag_sidebar_open.value = !flag_sidebar_open.value;
+    data_store.flag_sidebar_open = !data_store.flag_sidebar_open;
 }
 
+const onClickAnalyzeCase = () => {
+    router.push('/');
+}
 </script>
 
 <template>
 
 <div class="left-sidebar lg:h-screen" 
-    :class="{ 'left-sidebar-open': flag_sidebar_open }">
+    :class="{ 'left-sidebar-open': data_store.flag_sidebar_open }">
     <div class="menu-item"
         v-tooltip.right="'Open/close sidebar'"
         @click="onClickToggleSidebar">
@@ -27,6 +30,7 @@ const onClickToggleSidebar = () => {
     <div class="menu-divider"></div>
 
     <div class="menu-item"
+        @click="onClickAnalyzeCase"
         v-tooltip.right="'Analyze new clinical case'">
         <font-awesome-icon icon="fa-regular fa-comments" />
         <div class="menu-item-text">
@@ -37,7 +41,7 @@ const onClickToggleSidebar = () => {
     </div>
 
     <div class="menu-item"
-        v-tooltip.right="'Analyze new clinical case'">
+        v-tooltip.right="'View past cases'">
         <font-awesome-icon icon="fa-regular fa-folder-open" />
         <div class="menu-item-text">
             <span>
@@ -51,10 +55,6 @@ const onClickToggleSidebar = () => {
 
 <style scoped>
 .left-sidebar {
-    position: absolute;
-    z-index: 999;
-    left: 0;
-    top: 0;
     width: 3rem;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -63,6 +63,7 @@ const onClickToggleSidebar = () => {
     box-shadow: 0 0 10px 0 var(--shadow-color);
     border-radius: 0 0 10px 0;
     padding: 0.5rem;
+    z-index: 999;
 
     display: flex;
     flex-direction: column;
@@ -94,7 +95,7 @@ const onClickToggleSidebar = () => {
     display: none;
 }
 .left-sidebar-open {
-    width: 15rem !important;
+    width: 20rem !important;
 }
 .left-sidebar-open .menu-item-text {
     display: block;
