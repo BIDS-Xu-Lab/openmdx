@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import router from '../router';
+import { samples } from '../models/Samples';
 const input_text = ref('');
 const el_textarea = ref(null);
 const n_rows = ref(1);
@@ -11,14 +12,8 @@ const onClickSubmit = () => {
     router.push('/analyze');
 }
 
-const samples = {
-    "sample-dgx-guideline": "What are the recommended guidelines for the initial management of a patient presenting with acute chest pain?",
-    "sample-dgx-diagnosis": "What is the differential diagnosis for a 32-year-old woman with acute onset of shortness of breath and chest pain?",
-    "sample-dgx-treatment": "What is the treatment plan for a 32-year-old man with acute onset of shortness of breath and chest pain?",
-};
-
-const onClickSample = (sample_id: keyof typeof samples) => {
-    input_text.value = samples[sample_id];
+const onClickSample = (sample: any) => {
+    input_text.value = sample.text;
 
     onInputTextarea();
 }
@@ -43,6 +38,15 @@ const onInputTextarea = () => {
 const flag_show_more_samples = ref(false);
 const onClickSeeMore = () => {
     flag_show_more_samples.value = !flag_show_more_samples.value;
+}
+
+const get_samples = () => {
+    // get fixed 3 samples with index
+    return [
+        samples.questions[2],
+        samples.questions[8],
+        samples.questions[20],
+    ];
 }
 </script>
 
@@ -73,42 +77,18 @@ const onClickSeeMore = () => {
     <!-- Samples -->
     <div class="flex lg:flex-row max-sm:flex-col gap-4 mb-2 lg:w-1/2">
 
-        <Card class="lg:w-1/3 cursor-pointer clickable-sample"
-            @click="onClickSample('sample-dgx-guideline')">
+        <Card v-for="sample in get_samples()" 
+            class="lg:w-1/3 cursor-pointer clickable-sample"
+            @click="onClickSample(sample)">
             <template #title>
-                Ask about guideline
+                {{ sample.section }}
             </template>
             <template #content>
                 <p class="m-0">
-                    {{ samples['sample-dgx-guideline'] }}
+                    {{ sample.text }}
                 </p>
             </template>
         </Card>
-
-        <Card class="lg:w-1/3 cursor-pointer clickable-sample"
-            @click="onClickSample('sample-dgx-diagnosis')">
-            <template #title>
-                Differential diagnosis
-            </template>
-            <template #content>
-                <p class="m-0">
-                    {{ samples['sample-dgx-diagnosis'] }}
-                </p>
-            </template>
-        </Card>
-
-        <Card class="lg:w-1/3 cursor-pointer clickable-sample"
-            @click="onClickSample('sample-dgx-treatment')">
-            <template #title>
-                Treatment plan
-            </template>
-            <template #content>
-                <p class="m-0">
-                    {{ samples['sample-dgx-treatment'] }}
-                </p>
-            </template>
-        </Card>
-
     </div>
 
 
