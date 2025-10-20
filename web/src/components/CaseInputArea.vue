@@ -80,7 +80,7 @@ const onClickSeeMore = () => {
             </template>
             <template #content>
                 <p class="m-0">
-                    What are the recommended guidelines for the initial management of a patient presenting with acute chest pain?
+                    {{ samples['sample-dgx-guideline'] }}
                 </p>
             </template>
         </Card>
@@ -92,7 +92,7 @@ const onClickSeeMore = () => {
             </template>
             <template #content>
                 <p class="m-0">
-                    What is the differential diagnosis for a 32-year-old woman with acute onset of shortness of breath and chest pain?
+                    {{ samples['sample-dgx-diagnosis'] }}
                 </p>
             </template>
         </Card>
@@ -104,7 +104,7 @@ const onClickSeeMore = () => {
             </template>
             <template #content>
                 <p class="m-0">
-                    What is the differential diagnosis for a 32-year-old woman with acute onset of shortness of breath and chest pain?
+                    {{ samples['sample-dgx-treatment'] }}
                 </p>
             </template>
         </Card>
