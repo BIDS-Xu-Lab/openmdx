@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import { ref } from "vue";
 import Aurora from '../components/backgrounds/Aurora.vue';
-import { useRouter } from 'vue-router';
 import { useDataStore } from '../stores/DataStore';
 import CaseInputArea from '../components/CaseInputArea.vue';
 import LeftSidebar from '../components/LeftSidebar.vue';
 import TopMenu from '../components/TopMenu.vue';
-const router = useRouter();
 const data_store = useDataStore();
 
 </script>

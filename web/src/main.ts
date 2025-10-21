@@ -65,6 +65,10 @@ function handleThemeChange(event: MediaQueryListEvent) {
 
 darkModeMediaQuery.addEventListener('change', handleThemeChange);
 
+// bind a sample clinical case to the store
+import { clinical_case } from "./models/Samples";
+store.current_clinical_case = clinical_case;
+
 ///////////////////////////////////////////////////////////
 // Router
 ///////////////////////////////////////////////////////////

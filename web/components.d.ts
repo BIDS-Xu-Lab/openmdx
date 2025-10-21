@@ -13,6 +13,7 @@ declare module 'vue' {
     Card: typeof import('primevue/card')['default']
     CaseInputArea: typeof import('./src/components/CaseInputArea.vue')['default']
     Checkbox: typeof import('primevue/checkbox')['default']
+    Divider: typeof import('primevue/divider')['default']
     Fieldset: typeof import('primevue/fieldset')['default']
     Footer: typeof import('./src/components/Footer.vue')['default']
     InputText: typeof import('primevue/inputtext')['default']
@@ -21,6 +22,9 @@ declare module 'vue' {
     Password: typeof import('primevue/password')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Splitter: typeof import('primevue/splitter')['default']
+    SplitterPanel: typeof import('primevue/splitterpanel')['default']
+    ToggleSwitch: typeof import('primevue/toggleswitch')['default']
     TopMenu: typeof import('./src/components/TopMenu.vue')['default']
   }
   export interface GlobalDirectives {

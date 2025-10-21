@@ -86,6 +86,7 @@ export interface Message {
   message_type: MessageType;
   text?: string | "";
   payload_json?: { [key: string]: any };
+  stage: string | "final";  // the stage of the message, e.g., "final", "intermediate", "thinking", "planning", etc.
   created_at: string;
 }
 
@@ -98,6 +99,7 @@ export function createEmptyMessage(
   message_type: MessageType = MessageType.USER,
   text: string = "",
   payload_json: { [key: string]: any } = {},
+  stage: string = "final",
 ): Message {
   return {
     message_id: generateId(),
@@ -105,6 +107,7 @@ export function createEmptyMessage(
     message_type: message_type,
     text: text,
     payload_json: payload_json,
+    stage: stage,
     created_at: new Date().toISOString(),
   };
 }

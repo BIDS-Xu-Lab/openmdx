@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 import type { ClinicalCase } from '../models/ClinicalCase';
+import { clinical_case } from '../models/Samples';
+
 export const useDataStore = defineStore('data', {
     state: () => ({
         current_page: '',
@@ -7,8 +9,13 @@ export const useDataStore = defineStore('data', {
 
         flag_sidebar_open: false,
 
-        current_clinical_case: null as ClinicalCase | null,
+        current_clinical_case: clinical_case as ClinicalCase,
     }),
+
+    getters: {
+        c3: (state) => state.current_clinical_case,
+    },
+    
     actions: {
         setCurrentPage(page: string) {
             this.current_page = page;
@@ -16,6 +23,10 @@ export const useDataStore = defineStore('data', {
 
         isDarkMode() {
             return this.color_scheme === 'dark';
+        },
+
+        setClinicalCase(case_data: ClinicalCase) {
+            this.current_clinical_case = case_data;
         }
     }
 })

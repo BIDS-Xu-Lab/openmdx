@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import router from '../router';
-import { samples } from '../models/Samples';
+import { questions } from '../models/Samples';
 const input_text = ref('');
 const el_textarea = ref(null);
 const n_rows = ref(1);
@@ -51,9 +51,9 @@ const onClickSeeMore = () => {
 const get_samples = () => {
     // get fixed 3 samples with index
     return [
-        samples.questions[2],
-        samples.questions[8],
-        samples.questions[20],
+        questions[2],
+        questions[8],
+        questions[20],
     ];
 }
 </script>
@@ -106,11 +106,11 @@ const get_samples = () => {
             class="lg:w-1/3 cursor-pointer clickable-sample"
             @click="onClickSample(sample)">
             <template #title>
-                {{ sample.section }}
+                {{ sample?.section }}
             </template>
             <template #content>
                 <p class="m-0">
-                    {{ sample.text }}
+                    {{ sample?.text }}
                 </p>
             </template>
         </Card>

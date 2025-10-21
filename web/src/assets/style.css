@@ -5,6 +5,7 @@
 /* this contains the default theme, these are optional styles */
 @import '@vue-flow/core/dist/theme-default.css';
 
+/* default theme for dark mode */
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
 
@@ -20,11 +21,26 @@
   --hover-color: rgba(0, 0, 0, 0.1);
 
   --footer-background-color: rgb(24, 24, 24);
+  --highlight-background-color: rgb(26, 43, 48);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --text-color: #213547;
+    --background-color: rgb(255, 255, 255);
+    --border-color: rgb(226, 226, 226);
+    --shadow-color: rgba(0, 0, 0, 0.1);
+
+    --hover-color: rgba(255, 255, 255, 0.3);
+
+    --footer-background-color: rgb(240, 240, 240);
+    --highlight-background-color: rgb(239, 246, 255);
+  }
 }
 
 body {
@@ -61,15 +77,9 @@ body {
     width: 100%;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --text-color: #213547;
-    --background-color: rgb(255, 255, 255);
-    --border-color: rgb(213, 213, 213);
-    --shadow-color: rgba(0, 0, 0, 0.1);
-
-    --hover-color: rgba(255, 255, 255, 0.3);
-
-    --footer-background-color: rgb(240, 240, 240);
+/* override the tailwind colors */
+@layer base {
+  * {
+    border-color: var(--border-color);
   }
 }

@@ -10,43 +10,68 @@ const onClickToggleSidebar = () => {
 const onClickAnalyzeCase = () => {
     router.push('/');
 }
+
+const onClickUserProfile = () => {
+    router.push('/user_profile');
+}
+
+const onClickCaseHistory = () => {
+    router.push('/case_history');
+}
 </script>
 
 <template>
 
 <div class="left-sidebar lg:h-screen" 
     :class="{ 'left-sidebar-open': data_store.flag_sidebar_open }">
-    <div class="menu-item"
-        v-tooltip.right="'Open/close sidebar'"
-        @click="onClickToggleSidebar">
-        <font-awesome-icon icon="fa-solid fa-bars" />
-        <div class="menu-item-text">
-            <span>
-                Toggle Sidebar
-            </span>
+    <div class="flex flex-col gap-2">
+        <div class="menu-item"
+            v-tooltip.right="'Open/close sidebar'"
+            @click="onClickToggleSidebar">
+            <font-awesome-icon icon="fa-solid fa-bars" />
+            <div class="menu-item-text">
+                <span>
+                    Toggle Sidebar
+                </span>
+            </div>
+        </div>
+
+        <div class="menu-divider"></div>
+
+        <div class="menu-item"
+            @click="onClickAnalyzeCase"
+            v-tooltip.right="'Analyze new clinical case'">
+            <font-awesome-icon icon="fa-regular fa-comments" />
+            <div class="menu-item-text">
+                <span>
+                    Analyze Case
+                </span>
+            </div>
+        </div>
+
+        <div class="menu-item"
+            @click="onClickCaseHistory"
+            v-tooltip.right="'View case history'">
+            <font-awesome-icon icon="fa-regular fa-folder-open" />
+            <div class="menu-item-text">
+                <span>
+                    Case History
+                </span>
+            </div>
         </div>
     </div>
 
-    <div class="menu-divider"></div>
 
-    <div class="menu-item"
-        @click="onClickAnalyzeCase"
-        v-tooltip.right="'Analyze new clinical case'">
-        <font-awesome-icon icon="fa-regular fa-comments" />
-        <div class="menu-item-text">
-            <span>
-                Analyze Case
-            </span>
-        </div>
-    </div>
-
-    <div class="menu-item"
-        v-tooltip.right="'View past cases'">
-        <font-awesome-icon icon="fa-regular fa-folder-open" />
-        <div class="menu-item-text">
-            <span>
-                Past Cases
-            </span>
+    <div class="flex flex-col gap-2 align-items-end">
+        <div class="menu-item"
+            @click="onClickUserProfile"
+            v-tooltip.right="'View user profile'">
+            <font-awesome-icon icon="fa-regular fa-user" />
+            <div class="menu-item-text">
+                <span>
+                    User Profile
+                </span>
+            </div>
         </div>
     </div>
 </div>
@@ -60,14 +85,12 @@ const onClickAnalyzeCase = () => {
     -webkit-backdrop-filter: blur(20px);
     background: var(--background-color);
     border-right: 1px solid var(--border-color);
-    box-shadow: 0 0 10px 0 var(--shadow-color);
-    border-radius: 0 0 10px 0;
     padding: 0.5rem;
     z-index: 999;
 
     display: flex;
     flex-direction: column;
-    align-items: start; 
+    justify-content: space-between;
     gap: 0.5rem;
 }
 .menu-divider {
