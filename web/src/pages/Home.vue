@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Aurora from '../components/backgrounds/Aurora.vue';
+import Threads from '../components/backgrounds/Threads.vue';
 import { useDataStore } from '../stores/DataStore';
 import CaseInputArea from '../components/CaseInputArea.vue';
 import LeftSidebar from '../components/LeftSidebar.vue';
@@ -22,6 +23,12 @@ const data_store = useDataStore();
             :intensity="1.0"
             class="w-full h-full"
         />
+        <!-- <Threads 
+            :color="[1, 1, 1]"
+            :amplitude="1"
+            :distance="0"
+            :enableMouseInteraction="false"
+        /> -->
     </div>
 
     <TopMenu />
@@ -107,7 +114,7 @@ const data_store = useDataStore();
     top: 0;
     left: 0;
     width: 100%;
-    height: 400px;
+    height: 500px;
 }
 .main-menu {
     position: absolute;

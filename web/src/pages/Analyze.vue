@@ -125,7 +125,7 @@ onMounted(() => {
         <!-- Chat Panel -->
         <SplitterPanel class="flex flex-col" :size="45" :minSize="30">
             <!-- Chat Header -->
-            <div class="chat-header h-12 flex items-center justify-between px-4 border-b">
+            <div class="chat-header h-12 flex items-center justify-between pl-4 border-b">
                 <div class="flex items-center gap-2">
                     <span class="font-semibold">
                         Analyzer
@@ -156,6 +156,9 @@ onMounted(() => {
                     <Menubar :model="chat_toolbar_items" 
                         style="border: none; background: transparent;"
                         class="p-0" />
+
+                    <Button type="button" icon="pi pi-ellipsis-v" @click="toggle" aria-haspopup="true" aria-controls="overlay_menu" />
+                    <Menu ref="menu" id="overlay_menu" :model="items" :popup="true" />
                     <!-- <ToggleButton 
                         v-model="case_store.show_thinking" 
                         onLabel="Thinking" 
@@ -241,7 +244,7 @@ onMounted(() => {
         <!-- Evidence Panel -->
         <SplitterPanel class="flex flex-col" :size="55" :minSize="30">
             <!-- Evidence Header -->
-            <div class="evidence-header h-12 flex items-center justify-between px-4 border-b"
+            <div class="evidence-header h-12 flex items-center justify-between pl-4 border-b"
                 style="border-color: var(--border-color);">
                 <div class="flex items-center gap-2">
                     <i class="pi pi-book"></i>

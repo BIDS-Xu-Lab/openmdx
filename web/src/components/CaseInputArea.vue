@@ -62,14 +62,14 @@ const get_samples = () => {
 <div class="flex flex-col items-center mt-8 gap-3 w-full">
 
     <div class="w-full flex flex-col" style="max-width: 40rem;">
-        <div class="relative w-full p-4 rounded-2xl border focus-within:border-primary">
+        <div class="input-container relative w-full p-4 rounded-2xl border focus-within:border-primary">
             <textarea
                 ref="el_textarea"
                 id="input-textarea"
                 wrap="soft"
                 v-model="input_text"
                 :rows="n_rows"
-                class="w-full p-4 resize-none border-0 focus:outline-none"
+                class="input-textarea w-full p-4 resize-none border-0 focus:outline-none"
                 placeholder="Describe a clinical case or question..."
                 @input="onInputTextarea"
                 style="overflow: auto; max-height: 20rem;"
@@ -144,5 +144,8 @@ const get_samples = () => {
 <style scoped>
 .clickable-sample:hover {
     background: var(--hover-color);
+}
+.input-container {
+    background: var(--background-color);
 }
 </style>
