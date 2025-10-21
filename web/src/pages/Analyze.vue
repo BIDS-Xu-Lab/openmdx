@@ -3,24 +3,17 @@ import { ref, computed, onMounted } from 'vue';
 import { useDataStore } from '../stores/DataStore';
 import { useCaseStore } from '../stores/CaseStore';
 import LeftSidebar from '../components/LeftSidebar.vue';
-import TopMenu from '../components/TopMenu.vue';
+import CiteTag from '../components/CiteTag.vue';
 import { MessageType } from '../models/ClinicalCase';
 import type { Message } from '../models/ClinicalCase';
 
 // PrimeVue components
-import Menubar from 'primevue/menubar';
 import Button from 'primevue/button';
 import Textarea from 'primevue/textarea';
-import ToggleButton from 'primevue/togglebutton';
-import Rating from 'primevue/rating';
 import OverlayPanel from 'primevue/overlaypanel';
 
 const data_store = useDataStore();
 const case_store = useCaseStore();
-
-// Reactive refs
-const cite_popup_ref = ref();
-const cite_content = ref('');
 
 // Computed properties
 const clinical_case = computed(() => data_store.c3);
@@ -51,6 +44,11 @@ const chat_toolbar_items = computed(() => [
     }
 ]);
 
+const chat_toolbar_menu_ref = ref();
+const toggleChatToolbarMenu = (event: Event) => {
+    chat_toolbar_menu_ref.value.toggle(event);
+};
+
 // Evidence toolbar items
 const evidence_toolbar_items = computed(() => [
     {
@@ -76,33 +74,57 @@ const handleSubmitMessage = () => {
             from_id: 'user_001',
             message_type: MessageType.USER,
             text: case_store.input_text,
-            created_at: new Date().toISOString()
+            created_at: new Date().toISOString(),
+            stage: 'input'
         };
         case_store.addMessage(new_message);
         case_store.setInputText('');
     }
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const handleCiteHover = (event: Event, content: string) => {
-    cite_content.value = content;
-    cite_popup_ref.value.show(event);
-};
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const handleCiteLeave = () => {
-    cite_popup_ref.value.hide();
+const handleCiteClick = (content: string) => {
+    console.log(content);
 };
 
 const handleEvidenceTabChange = (index: number) => {
     case_store.setCurrentEvidenceTab(index);
 };
 
-const formatMessageText = (text: string) => {
-    // Parse cite tags and create interactive elements
-    return text.replace(/<cite>(.*?)<\/cite>/g, (_, content) => {
-        return `<span class="cite-tag" @mouseenter="handleCiteHover($event, '${content}')" @mouseleave="handleCiteLeave">${content}</span>`;
-    });
+const parseMessageText = (text: string) => {
+    // Parse cite tags and return structured data for rendering
+    const parts: Array<{ type: 'text' | 'cite', content: string }> = [];
+    let lastIndex = 0;
+    
+    const citeRegex = /<cite>(.*?)<\/cite>/g;
+    let match;
+    
+    while ((match = citeRegex.exec(text)) !== null) {
+        // Add text before the cite tag
+        if (match.index > lastIndex) {
+            parts.push({
+                type: 'text',
+                content: text.slice(lastIndex, match.index)
+            });
+        }
+        
+        // Add the cite tag
+        parts.push({
+            type: 'cite',
+            content: match[1] || ''
+        });
+        
+        lastIndex = match.index + match[0].length;
+    }
+    
+    // Add remaining text after the last cite tag
+    if (lastIndex < text.length) {
+        parts.push({
+            type: 'text',
+            content: text.slice(lastIndex)
+        });
+    }
+    
+    return parts;
 };
 
 const keyword = ref('');
@@ -152,20 +174,20 @@ onMounted(() => {
                     <label for="show_thinking">
                         Thinking
                     </label>
-                    
-                    <Menubar :model="chat_toolbar_items" 
-                        style="border: none; background: transparent;"
-                        class="p-0" />
 
-                    <Button type="button" icon="pi pi-ellipsis-v" @click="toggle" aria-haspopup="true" aria-controls="overlay_menu" />
-                    <Menu ref="menu" id="overlay_menu" :model="items" :popup="true" />
-                    <!-- <ToggleButton 
-                        v-model="case_store.show_thinking" 
-                        onLabel="Thinking" 
-                        offLabel="Thinking"
-                        class="text-xs"
-                        @change="case_store.toggleThinking"
-                    /> -->
+                    <Button type="button" 
+                        text
+                        size="small"
+                        class="mr-2"
+                        icon="pi pi-ellipsis-v" 
+                        @click="toggleChatToolbarMenu" 
+                        aria-haspopup="true" 
+                        aria-controls="chat_toolbar_menu" />
+                    <Menu ref="chat_toolbar_menu_ref"
+                        id="chat_toolbar_menu" 
+                        :model="chat_toolbar_items" 
+                        :popup="true" />
+                        
                     <!-- <Rating v-model="case_store.chat_rating" :stars="5" class="text-sm" /> -->
                 </div>
             </div>
@@ -196,7 +218,17 @@ onMounted(() => {
                             </div>
                         </div>
                         
-                        <div class="message-content" v-html="formatMessageText(message.text || '')"></div>
+                        <div class="message-content">
+                            <template v-for="(part, index) in parseMessageText(message.text || '')" :key="index">
+                                <span v-if="part.type === 'text'" v-html="part.content"></span>
+                                <CiteTag 
+                                    v-else-if="part.type === 'cite'"
+                                    :content="part.content"
+                                    @click="handleCiteClick"
+                                    @hover="handleCiteHover"
+                                    @leave="handleCiteLeave" />
+                            </template>
+                        </div>
                     </div>
                 </template>
             </div>
@@ -212,8 +244,7 @@ onMounted(() => {
                         rows="1"
                         style="max-height: 10rem;"
                         class="w-full"
-                        @keydown.enter.prevent="handleSubmitMessage"
-                    />
+                        @keydown.enter.prevent="handleSubmitMessage" />
                     
                     <!-- Action buttons -->
                     <div class="flex justify-between items-center">
@@ -226,13 +257,11 @@ onMounted(() => {
                                 icon="pi pi-microphone" 
                                 size="small" 
                                 :class="{ 'p-button-warning': case_store.is_recording }"
-                                @click="case_store.toggleRecording"
-                            />
+                                @click="case_store.toggleRecording" />
                             <Button 
                                 icon="pi pi-send" 
                                 size="small" 
-                                @click="handleSubmitMessage"
-                            />
+                                @click="handleSubmitMessage" />
                         </div>
                     </div>
                 </div>
@@ -254,9 +283,19 @@ onMounted(() => {
                     <span class="text-sm text-gray-500">({{ evidence_count }} pieces)</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <Menubar :model="evidence_toolbar_items" 
-                        style="border: none; background: transparent;"
-                        class="p-0" />
+
+                    <Button type="button" 
+                        text
+                        size="small"
+                        class="mr-2"
+                        icon="pi pi-ellipsis-v" 
+                        @click="toggleChatToolbarMenu" 
+                        aria-haspopup="true" 
+                        aria-controls="chat_toolbar_menu" />
+                    <Menu ref="chat_toolbar_menu_ref"
+                        id="chat_toolbar_menu" 
+                        :model="evidence_toolbar_items" 
+                        :popup="true" />
                 </div>
             </div>
 
@@ -283,7 +322,7 @@ onMounted(() => {
                             </template>
 
                             <template v-else>
-                                <font-awesome-icon icon="fa-solid fa-file-lines" />
+                                <font-awesome-icon icon="fa-regular fa-file-lines" />
 
                                 <span class="text-sm font-medium truncate">
                                     {{ snippet.source_type.replace('_', ' ').toUpperCase() }}
@@ -333,12 +372,6 @@ onMounted(() => {
     </div>
 </div>
 
-<!-- Cite Popup -->
-<OverlayPanel ref="cite_popup_ref" class="cite-popup">
-    <div class="p-3 max-w-sm">
-        <div class="text-sm">{{ cite_content }}</div>
-    </div>
-</OverlayPanel>
 </template>
 
 <style scoped>
@@ -373,18 +406,6 @@ onMounted(() => {
     display: inline-block;
 }
 
-.cite-tag {
-    background-color: var(--highlight-background-color);
-    color: #92400e;
-    padding: 0.125rem 0.25rem;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.cite-tag:hover {
-    background-color: #fde68a;
-}
 
 .evidence-tab {
     transition: all 0.2s;

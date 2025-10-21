@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import type { ClinicalCase, Message } from '../models/ClinicalCase';
+import type { ClinicalCase, EvidenceSnippet, Message } from '../models/ClinicalCase';
 
 export const useCaseStore = defineStore('case', {
     state: () => ({
@@ -12,6 +12,14 @@ export const useCaseStore = defineStore('case', {
     }),
 
     getters: {
+        evidence_dict: (state) => {
+            const dict: { [key: string]: any } = {};
+            const snippets = state.clinical_case?.evidence_snippets || [];
+            snippets.forEach((snippet: EvidenceSnippet) => {
+                dict[snippet.snippet_id] = snippet;
+            });
+            return dict;
+        },
         messages: (state) => state.clinical_case?.messages || [],
         evidence_snippets: (state) => state.clinical_case?.evidence_snippets || [],
         current_evidence: (state) => {
