@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, ref } from 'vue';
+import { defineProps, defineEmits, ref } from 'vue';
 import { useCaseStore } from '../stores/CaseStore';
 import type { EvidenceSnippet } from '../models/ClinicalCase';
 
@@ -7,7 +7,11 @@ const case_store = useCaseStore();
 const evidence_snippet = ref<EvidenceSnippet | null>(null);
 
 const props = defineProps<{
-    content: string;
+    snippet_id: string;
+}>();
+
+const emit = defineEmits<{
+    (e: 'click', snippet_id: string): void;
 }>();
 
 // Reactive refs
@@ -17,7 +21,7 @@ const handleMouseEnter = (event: MouseEvent) => {
     cite_popup_ref.value.show(event);
 
     // get the evidence snippet from the case store
-    const ev = case_store.evidence_dict[props.content];
+    const ev = case_store.evidence_dict[props.snippet_id];
     evidence_snippet.value = ev;
 };
 
@@ -40,9 +44,7 @@ const handleMouseLeaveOverlayPanel = () => {
     if (hide_overlay_panel_timeout) {
         clearTimeout(hide_overlay_panel_timeout);
     }
-    hide_overlay_panel_timeout = setTimeout(() => {
-        cite_popup_ref.value.hide();
-    }, 500);
+    cite_popup_ref.value.hide();
 };
 
 const shortenText = (text: string, maxLength: number) => {
@@ -54,16 +56,17 @@ const shortenText = (text: string, maxLength: number) => {
 </script>
 
 <template>
-<span class="cite-tag cursor-pointer text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-600 underline" 
+<span class="cite-tag cursor-pointer text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-600" 
+    @click="emit('click', snippet_id)"
     @mouseenter="handleMouseEnter($event)"
     @mouseleave="handleMouseLeave">
     <font-awesome-icon icon="fa-solid fa-link" />
-    {{ content }}
+    {{ case_store.evidence_dict[props.snippet_id].index + 1 }}
 </span>
 
 
 <!-- Cite Popup -->
-<OverlayPanel ref="cite_popup_ref" 
+<Popover ref="cite_popup_ref" 
     @mouseenter="handleMouseEnterOverlayPanel($event)"
     @mouseleave="handleMouseLeaveOverlayPanel"
     class="cite-popup">
@@ -82,7 +85,7 @@ const shortenText = (text: string, maxLength: number) => {
         {{ evidence_snippet?.created_at }}
     </div>
 </div>
-</OverlayPanel>
+</Popover>
 </template>
 
 
@@ -93,5 +96,7 @@ const shortenText = (text: string, maxLength: number) => {
     cursor: pointer;
     border-radius: 0.25rem;
     font-size: 0.875rem;
+    margin-right: 0.25rem;
+    padding: 0 0.25rem;
 }
 </style>

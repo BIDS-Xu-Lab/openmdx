@@ -4,7 +4,7 @@ import type { ClinicalCase, EvidenceSnippet, Message } from '../models/ClinicalC
 export const useCaseStore = defineStore('case', {
     state: () => ({
         clinical_case: null as ClinicalCase | null,
-        current_evidence_tab: 0,
+        current_evidence_tab: null as string | null,
         show_thinking: false,
         chat_rating: 0,
         input_text: '',
@@ -15,7 +15,8 @@ export const useCaseStore = defineStore('case', {
         evidence_dict: (state) => {
             const dict: { [key: string]: any } = {};
             const snippets = state.clinical_case?.evidence_snippets || [];
-            snippets.forEach((snippet: EvidenceSnippet) => {
+            snippets.forEach((snippet: EvidenceSnippet, index: number) => {
+                snippet.index = index;
                 dict[snippet.snippet_id] = snippet;
             });
             return dict;
@@ -23,8 +24,12 @@ export const useCaseStore = defineStore('case', {
         messages: (state) => state.clinical_case?.messages || [],
         evidence_snippets: (state) => state.clinical_case?.evidence_snippets || [],
         current_evidence: (state) => {
-            const snippets = state.clinical_case?.evidence_snippets || [];
-            return snippets[state.current_evidence_tab] || null;
+            for (const snippet of state.clinical_case?.evidence_snippets || []) {
+                if (snippet.snippet_id === state.current_evidence_tab) {
+                    return snippet;
+                }
+            }
+            return null;
         },
         evidence_count: (state) => state.clinical_case?.evidence_snippets?.length || 0,
     },
@@ -34,8 +39,8 @@ export const useCaseStore = defineStore('case', {
             this.clinical_case = case_data;
         },
 
-        setCurrentEvidenceTab(index: number) {
-            this.current_evidence_tab = index;
+        setCurrentEvidenceTab(snippet_id: string) {
+            this.current_evidence_tab = snippet_id;
         },
 
         toggleThinking() {

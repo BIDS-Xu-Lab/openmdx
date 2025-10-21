@@ -736,20 +736,19 @@ export const clinical_case = {
         ),
 
         // NEW: FINAL answer to the user's first question (explicit, stage: "final")
-        {
-            message_id: "msg_final_001",
-            ts: "2024-01-15T15:29:59Z",
-            from_id: "cardiology_agent",
-            kind: MessageType.AGENT,
-            text: "Best approach to optimize therapy:\n" +
+        createEmptyMessage(
+            "msg_final_001",
+            MessageType.AGENT,
+            "Best approach to optimize therapy:\n" +
                 "1) Start an SGLT2 inhibitor now (dapagliflozin 10 mg daily; renal function adequate at eGFR 35). <cite>evid_005</cite> <cite>evid_009</cite> <cite>evid_007</cite>\n" +
                 "2) Transition from lisinopril to sacubitril–valsartan after a 36-hour washout; begin 24/26 mg BID and uptitrate as tolerated. <cite>evid_004</cite> <cite>evid_006</cite>\n" +
                 "3) Up-titrate metoprolol succinate toward target as tolerated (monitor HR/BP). <cite>evid_004</cite>\n" +
                 "4) Consider adding an MRA once potassium is consistently <5.0 mEq/L and renal function remains stable; choose eplerenone if hyperkalemia risk is a concern. <cite>evid_004</cite> <cite>evid_007</cite>\n" +
                 "5) Monitor volume status and electrolytes closely (loop diuretic adjustment may be needed). <cite>evid_007</cite>\n" +
                 "This plan aligns with guideline-directed quadruple therapy for HFrEF and is supported by major trials in similar populations.",
-            stage: "final",
-        },
+            {},
+            "final",
+        ),
     ] as Message[],
 
     created_at: "2024-01-15T08:00:00Z",

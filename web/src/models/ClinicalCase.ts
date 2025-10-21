@@ -36,6 +36,7 @@ export type ClinicalCaseStatus = typeof ClinicalCaseStatus[keyof typeof Clinical
  */
 export interface EvidenceSnippet {
   snippet_id: string;
+  index: number | 0;   // index of the snippet in the clinical case, starting from 0
   text: string;        // the text of the snippet
   source_id: string;   // the id of the source of the snippet, e.g., PMDI, PMCID, DOI
   source_type: string; // e.g., "pubmed", "clinical_note", "uptodate", "webpage", etc.

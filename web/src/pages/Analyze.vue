@@ -6,6 +6,7 @@ import LeftSidebar from '../components/LeftSidebar.vue';
 import CiteTag from '../components/CiteTag.vue';
 import { MessageType } from '../models/ClinicalCase';
 import type { Message } from '../models/ClinicalCase';
+import { marked } from 'marked';
 
 // PrimeVue components
 import Button from 'primevue/button';
@@ -82,12 +83,12 @@ const handleSubmitMessage = () => {
     }
 };
 
-const handleCiteClick = (content: string) => {
-    console.log(content);
+const handleCiteClick = (snippet_id: string) => {
+    case_store.setCurrentEvidenceTab(snippet_id);
 };
 
-const handleEvidenceTabChange = (index: number) => {
-    case_store.setCurrentEvidenceTab(index);
+const handleEvidenceTabChange = (snippet_id: string) => {
+    case_store.setCurrentEvidenceTab(snippet_id);
 };
 
 const parseMessageText = (text: string) => {
@@ -167,8 +168,6 @@ onMounted(() => {
                     <ToggleSwitch 
                         id="show_thinking"
                         v-model="case_store.show_thinking" 
-                        onLabel="Thinking" 
-                        offLabel="Thinking"
                         class="text-xs" />
 
                     <label for="show_thinking">
@@ -220,13 +219,12 @@ onMounted(() => {
                         
                         <div class="message-content">
                             <template v-for="(part, index) in parseMessageText(message.text || '')" :key="index">
-                                <span v-if="part.type === 'text'" v-html="part.content"></span>
-                                <CiteTag 
-                                    v-else-if="part.type === 'cite'"
-                                    :content="part.content"
-                                    @click="handleCiteClick"
-                                    @hover="handleCiteHover"
-                                    @leave="handleCiteLeave" />
+                                <span v-if="part.type === 'text'">
+                                    <span v-html="marked(part.content)"></span>
+                                </span>
+                                <CiteTag v-else-if="part.type === 'cite'"
+                                    :snippet_id="part.content"
+                                    @click="handleCiteClick" />
                             </template>
                         </div>
                     </div>
@@ -280,7 +278,7 @@ onMounted(() => {
                     <span class="font-semibold">
                         Evidence
                     </span>
-                    <span class="text-sm text-gray-500">({{ evidence_count }} pieces)</span>
+                    <span class="text-sm text-gray-500">({{ evidence_count }})</span>
                 </div>
                 <div class="flex items-center gap-2">
 
@@ -306,9 +304,12 @@ onMounted(() => {
                     style="overflow-y: auto; height: calc(100svh - 3rem);">
                     <div v-for="(snippet, index) in evidence_snippets" :key="snippet.snippet_id"
                         class="evidence-tab p-2 rounded hover:bg-white dark:hover:bg-gray-700 border-btransition-colors"
-                        :class="{ 'bg-white dark:bg-gray-800 shadow-sm': index === case_store.current_evidence_tab }"
-                        @click="handleEvidenceTabChange(index)">
+                        :class="{ 'bg-white dark:bg-gray-800 shadow-sm': snippet.snippet_id === case_store.current_evidence_tab }"
+                        @click="handleEvidenceTabChange(snippet.snippet_id)">
                         <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium">
+                                ({{ snippet.index + 1 }})
+                            </span>
                             <template v-if="['pubmed', 'pmc', 'doi', 'webpage'].includes(snippet.source_type)">
                                 <font-awesome-icon icon="fa-solid fa-globe" />
                                 <span class="text-sm font-medium truncate">
