@@ -83,58 +83,46 @@ const handleSubmitMessage = () => {
     }
 };
 
-const handleCiteClick = (snippet_id: string) => {
-    case_store.setCurrentEvidenceTab(snippet_id);
-};
-
 const handleEvidenceTabChange = (snippet_id: string) => {
     case_store.setCurrentEvidenceTab(snippet_id);
 };
 
-const parseMessageText = (text: string) => {
-    // Parse cite tags and return structured data for rendering
-    const parts: Array<{ type: 'text' | 'cite', content: string }> = [];
-    let lastIndex = 0;
-    
-    const citeRegex = /<cite>(.*?)<\/cite>/g;
-    let match;
-    
-    while ((match = citeRegex.exec(text)) !== null) {
-        // Add text before the cite tag
-        if (match.index > lastIndex) {
-            parts.push({
-                type: 'text',
-                content: text.slice(lastIndex, match.index)
-            });
-        }
-        
-        // Add the cite tag
-        parts.push({
-            type: 'cite',
-            content: match[1] || ''
-        });
-        
-        lastIndex = match.index + match[0].length;
-    }
-    
-    // Add remaining text after the last cite tag
-    if (lastIndex < text.length) {
-        parts.push({
-            type: 'text',
-            content: text.slice(lastIndex)
-        });
-    }
-    
-    return parts;
+const renderMessageText = (text: string) => {
+    let html = marked.parse(text);
+
+    return html;
 };
 
 const keyword = ref('');
+
+
+
+const cite_popup_ref = ref();
+const handleMouseEnterOverlayPanel = () => {
+    console.log('handleMouseEnterOverlayPanel');
+    case_store.clearHideHoveredSnippetTimeout();
+};
+
+const handleMouseLeaveOverlayPanel = () => {
+    console.log('handleMouseLeaveOverlayPanel');
+    case_store.hideHoveredSnippet();
+};
+
+
+const shortenText = (text: string, maxLength: number) => {
+    if (text.length <= maxLength) {
+        return text;
+    }
+    return text.slice(0, maxLength) + '...';
+};
 
 // Initialize case data
 onMounted(() => {
     if (clinical_case.value) {
         case_store.setClinicalCase(clinical_case.value);
     }
+
+    case_store.cite_popup_ref = cite_popup_ref.value;
 });
 </script>
 
@@ -218,14 +206,15 @@ onMounted(() => {
                         </div>
                         
                         <div class="message-content">
-                            <template v-for="(part, index) in parseMessageText(message.text || '')" :key="index">
+                            <!-- <template v-for="(part, index) in parseMessageText(message.text || '')" :key="index">
                                 <span v-if="part.type === 'text'">
-                                    <span v-html="marked(part.content)"></span>
+                                    <span v-html="part.content"></span>
                                 </span>
                                 <CiteTag v-else-if="part.type === 'cite'"
                                     :snippet_id="part.content"
                                     @click="handleCiteClick" />
-                            </template>
+                            </template> -->
+                            <div v-html="renderMessageText(message.text || '')" v-cite></div>
                         </div>
                     </div>
                 </template>
@@ -299,12 +288,13 @@ onMounted(() => {
 
             <!-- Evidence Body -->
             <div class="evidence-body flex-1 flex">
+
                 <!-- Evidence Tabs (Left 1/4) -->
-                <div class="w-1/4 border-r overflow-x-hidden bg-gray-50 pl-2"
+                <div class="w-1/4 border-r overflow-x-hidden pl-2"
                     style="overflow-y: auto; height: calc(100svh - 3rem);">
                     <div v-for="(snippet, index) in evidence_snippets" :key="snippet.snippet_id"
-                        class="evidence-tab p-2 rounded hover:bg-white dark:hover:bg-gray-700 border-btransition-colors"
-                        :class="{ 'bg-white dark:bg-gray-800 shadow-sm': snippet.snippet_id === case_store.current_evidence_tab }"
+                        class="evidence-tab p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 border-btransition-colors"
+                        :class="{ 'bg-gray-100 dark:bg-gray-800 shadow-sm': snippet.snippet_id === case_store.current_evidence_tab }"
                         @click="handleEvidenceTabChange(snippet.snippet_id)">
                         <div class="flex items-center gap-2">
                             <span class="text-sm font-medium">
@@ -372,6 +362,31 @@ onMounted(() => {
         </Splitter>
     </div>
 </div>
+
+
+
+
+
+<!-- Cite Popup -->
+<Popover ref="cite_popup_ref" 
+    @mouseenter="handleMouseEnterOverlayPanel"
+    @mouseleave="handleMouseLeaveOverlayPanel"
+    class="cite-popup">
+<div class="p-3 max-w-sm flex flex-col gap-2">
+    <div class="font-medium">
+        {{ case_store.current_hovered_evidence?.source_type }}
+        {{ case_store.current_hovered_evidence?.source_id }}
+    </div>
+    <div class="text-sm">
+        {{ shortenText(case_store.current_hovered_evidence?.text || '', 100) }}
+    </div>
+
+    <div class="text-sm">
+        {{ case_store.current_hovered_evidence?.created_at }}
+    </div>
+</div>
+</Popover>
+
 
 </template>
 

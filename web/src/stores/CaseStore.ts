@@ -9,6 +9,11 @@ export const useCaseStore = defineStore('case', {
         chat_rating: 0,
         input_text: '',
         is_recording: false,
+
+        // something for the hover state
+        hovered_snippet_id: null as string | null,
+        cite_popup_ref: null,
+        hide_overlay_panel_timeout: null as number | null,
     }),
 
     getters: {
@@ -31,6 +36,14 @@ export const useCaseStore = defineStore('case', {
             }
             return null;
         },
+        current_hovered_evidence: (state) => {
+            for (const snippet of state.clinical_case?.evidence_snippets || []) {
+                if (snippet.snippet_id === state.hovered_snippet_id) {
+                    return snippet;
+                }
+            }
+            return null;
+        },
         evidence_count: (state) => state.clinical_case?.evidence_snippets?.length || 0,
     },
 
@@ -41,6 +54,31 @@ export const useCaseStore = defineStore('case', {
 
         setCurrentEvidenceTab(snippet_id: string) {
             this.current_evidence_tab = snippet_id;
+        },
+
+        setHoveredSnippetId(snippet_id: string, event: MouseEvent) {
+            this.clearHideHoveredSnippetTimeout();
+            this.hovered_snippet_id = snippet_id;
+            if (this.cite_popup_ref) {
+                (this.cite_popup_ref as any).show(event);
+            }
+        },
+
+        hideHoveredSnippet() {
+            if (this.hide_overlay_panel_timeout) {
+                clearTimeout(this.hide_overlay_panel_timeout);
+            }
+            this.hide_overlay_panel_timeout = setTimeout(() => {
+                if (this.cite_popup_ref) {
+                    (this.cite_popup_ref as any).hide();
+                }
+            }, 500);
+        },
+
+        clearHideHoveredSnippetTimeout() {
+            if (this.hide_overlay_panel_timeout) {
+                clearTimeout(this.hide_overlay_panel_timeout);
+            }
         },
 
         toggleThinking() {

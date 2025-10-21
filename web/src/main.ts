@@ -8,6 +8,7 @@ import { my_preset_theme } from './theme';
 import { createPinia } from 'pinia';
 import router from './router';
 import { useDataStore } from './stores/DataStore';
+import { vCite } from './directives/v-cite';
 
 // create the app
 const app = createApp(App)
@@ -18,6 +19,9 @@ app.use(pinia)
 
 // add the router
 app.use(router)
+
+// add the v-cite directive
+app.directive('cite', vCite)
 
 ///////////////////////////////////////////////////////////
 // PrimeVue
