@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { useDataStore } from '../stores/DataStore';
 import LeftSidebar from '../components/LeftSidebar.vue';
+import { MessageType } from '../models/ClinicalCase';
+import type { Message } from '../models/ClinicalCase';
 const data_store = useDataStore();
+
 
 </script>
 

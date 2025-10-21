@@ -2,213 +2,179 @@
 
 // ---------- Core primitives ----------
 
-export type ID = string;
-export type ISODateTime = string;
+/**
+ * Clinical case status is the status of the clinical case.
+ * 
+ * Each clinical case has a status.
+ * For example:
+ * 
+ * - CREATED: the clinical case is created but not yet processed
+ * - PROCESSING: the clinical case is being processed
+ * - COMPLETED: the clinical case is completed
+ * - ERROR: the clinical case has an error when processing and stoped
+ */
+export const ClinicalCaseStatus = {
+  CREATED: "CREATED",
+  PROCESSING: "PROCESSING",
+  COMPLETED: "COMPLETED",
+  ERROR: "ERROR",
+} as const;
+export type ClinicalCaseStatus = typeof ClinicalCaseStatus[keyof typeof ClinicalCaseStatus];
 
-export type ClinicalCaseStatus = "draft" | "active" | "completed" | "archived";
+// ---------- Evidence snippets ----------
 
-// ---------- Case metadata & patient ----------
-
-export interface ClinicalCaseMeta {
-  case_id: ID;
-  title?: string;
-  source?: "manual" | "upload" | "api";
-  schema_version: "1.0.0";
-  created_at: ISODateTime;
-  updated_at: ISODateTime;
-}
-
-export interface PatientCore {
-  age?: number;
-  sex?: "M" | "F" | "O";
-  mrn_masked?: string;
-}
-
-// ---------- Notes ----------
-
-export type NoteType = "HPI" | "ROS" | "PE" | "Labs" | "Imaging" | "AP" | "Other";
-
-export interface ClinicalNote {
-  note_id: ID;
-  type: NoteType;
-  content_markdown: string;
-  created_at: ISODateTime;
-  updated_at: ISODateTime;
-}
-
-// ---------- Simple output ----------
-
+/**
+ * Evidence snippet is a piece of text that is used to support the clinical case.
+ * 
+ * Each snippet is a piece of text that is used to support the clinical case.
+ * For example:
+ * 
+ * - user-uploaded clinical notes, or a file
+ * - a paper from pubmed, pmc or other sources
+ * - a clinical guideline from a professional society
+ * - a web page from a clinical website
+ */
 export interface EvidenceSnippet {
-  text: string;
-  source_ref?: string;
+  snippet_id: string;
+  text: string;        // the text of the snippet
+  source_id: string;   // the id of the source of the snippet, e.g., PMDI, PMCID, DOI
+  source_type: string; // e.g., "pubmed", "clinical_note", "uptodate", "webpage", etc.
+  source_url?: string; // the url of the source of the snippet, e.g., https://pubmed.ncbi.nlm.nih.gov/12345678/
+  source_citation?: string; // the citation of the source of the snippet, e.g., "Smith J, Doe R. A new study. Nature 2024;123:123-123."
+  created_at: string;
 }
 
-export interface DifferentialItem {
-  dx_id: ID;
-  label: string;
-  prob?: number;
-  evidence: EvidenceSnippet[];
-  guideline_badge?: boolean;
-  red_flag?: boolean;
-}
+// ---------- Messages ----------
 
-export interface NextStepItem {
-  step_id: ID;
-  label: string;
-  reason: string;
-  eta?: string;
-  risk?: "low" | "mid" | "high";
-}
+/**
+ * Message type indicates the role of the message sender.
+ * Each message has a type.
+ * For example:
+ * 
+ * - USER: the message is from the user
+ * - AGENT: the message is from the agent
+ * - TOOL: the message is from the tool
+ * - SYSTEM: the message is from the system
+ */
+export const MessageType = {
+  USER: "USER",
+  AGENT: "AGENT",
+  TOOL: "TOOL",
+  SYSTEM: "SYSTEM",
+} as const;
+export type MessageType = typeof MessageType[keyof typeof MessageType];
 
-export interface SimpleUncertainty {
-  missing_top2?: string[];
-  red_flags?: string[];
-}
 
-export interface SimpleView {
-  summary_line?: string;
-  differential_top3: DifferentialItem[];
-  next_steps_top3: NextStepItem[];
-  uncertainty?: SimpleUncertainty;
-}
-
-// ---------- Agents ----------
-
-export interface AgentInfo {
-  agent_id: ID;
-  name: string;
-  model?: string;
-  enabled?: boolean;
-}
-
-// ---------- Conversation ----------
-
-export type ParticipantKind = "user" | "agent" | "tool" | "system";
-
-export interface Participant {
-  participant_id: ID;
-  kind: ParticipantKind;
-  display_name?: string;
-}
-
-export type MessageKind = "text" | "tool_call" | "tool_result";
-
+/**
+ * Message is a basic information in the analysis conversation.
+ * Each message has a sender, a type, a text, and a payload.
+ * The message can be a user question, an agent response, a tool response, or a system message.
+ * 
+ * For user, agent, and tool messages, they are the results of each step in the analysis conversation. For example:
+ * - user: the user's question with a clinical case text
+ * - agent: the agent's response with its analysis result
+ * - tool: the tool's response with its generated text
+ * 
+ * For system messages, they are mainly for system notifications to update the UI or to inform the user. More details will be defined in the payload_json.For example:
+ * - "event_name": "agent_thinking", indicating the agent is thinking about the analysis result
+ * - "event_name": "agent_planning", indicating the agent is planning the analysis result
+ * - "event_name": "system_notification", indicating the system has finished the analysis and the result is ready
+ */
 export interface Message {
-  message_id: ID;
-  ts: ISODateTime;
-  from_id: ID;
-  to_id?: ID;
-  kind: MessageKind;
-  text?: string;
-  payload_json?: unknown;
+  message_id: string;
+  from_id: string;
+  message_type: MessageType;
+  text?: string | "";
+  payload_json?: { [key: string]: any };
+  created_at: string;
 }
 
-export interface Conversation {
-  participants: Participant[];
-  timeline: Message[];
+/**
+ * Create an empty message with the given sender, type, text, and payload.
+ * The message is created with the current timestamp.
+ */
+export function createEmptyMessage(
+  from_id: string,
+  message_type: MessageType = MessageType.USER,
+  text: string = "",
+  payload_json: { [key: string]: any } = {},
+): Message {
+  return {
+    message_id: generateId(),
+    from_id: from_id,
+    message_type: message_type,
+    text: text,
+    payload_json: payload_json,
+    created_at: new Date().toISOString(),
+  };
 }
 
-// ---------- User questions ----------
+// ---------- ClinicalCase root ----------
 
-export type QuestionStatus = "pending" | "answered" | "dismissed";
-
-export interface UserQuestion {
-  question_id: ID;
-  text: string;
-  asked_by: ID;
-  status: QuestionStatus;
-  answer_message_id?: ID;
-  created_at: ISODateTime;
-  updated_at: ISODateTime;
-}
-
-// ---------- Aggregate root ----------
-
+/**
+ * ClinicalCase is the root object of the clinical case.
+ * Each clinical case has a unique id, a status, a title, evidence snippets, and messages.
+ * The clinical case is created with the current timestamp.
+ */
 export interface ClinicalCase {
-  meta: ClinicalCaseMeta;
+  case_id: string;
   status: ClinicalCaseStatus;
+  title?: string;
 
-  patient: PatientCore;
-  notes: ClinicalNote[];
+  // --- Evidence snippets ---
+  evidence_snippets: EvidenceSnippet[];
 
-  simple: SimpleView;
+  // --- Messages ---
+  messages: Message[];
 
-  agents: AgentInfo[];
-  conversation: Conversation;
-  questions: UserQuestion[];
-
-  created_at: ISODateTime;
-  updated_at: ISODateTime;
+  // --- Timestamps ---
+  created_at: string;
+  updated_at: string;
 }
 
 // ---------- Helpers ----------
 
+/**
+ * Create an empty clinical case with the given partial data.
+ * The clinical case is created with the current timestamp.
+ */
 export function createEmptyClinicalCase(partial?: Partial<ClinicalCase>): ClinicalCase {
   const now = new Date().toISOString();
   return {
-    meta: {
-      case_id: generateId(),
-      title: partial?.meta?.title,
-      source: partial?.meta?.source ?? "manual",
-      schema_version: "1.0.0",
-      created_at: now,
-      updated_at: now,
-    },
-    status: partial?.status ?? "draft",
+    case_id: generateId(),
+    title: partial?.title,
+    status: partial?.status ?? ClinicalCaseStatus.CREATED,
+
+    evidence_snippets: partial?.evidence_snippets ?? [],
+    messages: partial?.messages ?? [],
+
     created_at: now,
     updated_at: now,
-
-    patient: partial?.patient ?? {},
-    notes: partial?.notes ?? [],
-
-    simple: partial?.simple ?? {
-      summary_line: "",
-      differential_top3: [],
-      next_steps_top3: [],
-      uncertainty: {},
-    },
-
-    agents: partial?.agents ?? [],
-    conversation: partial?.conversation ?? { participants: [], timeline: [] },
-    questions: partial?.questions ?? [],
   };
 }
 
+/**
+ * Add a message to the clinical case.
+ * The clinical case is updated with the new message.
+ * The updated_at is updated to the current timestamp.
+ */
 export function addMessage(clinical_case: ClinicalCase, msg: Message): ClinicalCase {
   const updated: ClinicalCase = { ...clinical_case };
-  updated.conversation = {
-    ...updated.conversation,
-    timeline: [...updated.conversation.timeline, msg],
-  };
+  updated.messages.push(msg);
   updated.updated_at = new Date().toISOString();
   return updated;
 }
 
-export function addUserQuestion(
-  clinical_case: ClinicalCase,
-  q: Omit<UserQuestion, "created_at" | "updated_at">
-): ClinicalCase {
-  const now = new Date().toISOString();
-  const new_q: UserQuestion = { ...q, created_at: now, updated_at: now };
-  const updated: ClinicalCase = { ...clinical_case, questions: [...clinical_case.questions, new_q] };
-  updated.updated_at = now;
-  return updated;
-}
-
-export function upsertAgent(clinical_case: ClinicalCase, agent: AgentInfo): ClinicalCase {
-  const idx = clinical_case.agents.findIndex(a => a.agent_id === agent.agent_id);
-  const agents =
-    idx >= 0
-      ? clinical_case.agents.map(a => (a.agent_id === agent.agent_id ? agent : a))
-      : [...clinical_case.agents, agent];
-  return { ...clinical_case, agents, updated_at: new Date().toISOString() };
-}
-
 // ---------- ID generator ----------
 
-export function generateId(): ID {
+/**
+ * Generate a unique id.
+ * The id is a string of 12 characters.
+ * The id is generated with the current timestamp.
+ */
+export function generateId(): string {
   const g: unknown = (globalThis as any)?.crypto?.randomUUID?.();
   return typeof g === "string" && g.length > 0
-    ? (g as ID)
-    : (`id_${Math.random().toString(36).slice(2)}` as ID);
+    ? (g as string)
+    : (`id_${Math.random().toString(36).slice(2)}` as string);
 }

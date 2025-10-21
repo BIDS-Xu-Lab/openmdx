@@ -1,3 +1,6 @@
+import { ClinicalCaseStatus, MessageType, createEmptyMessage } from './ClinicalCase';
+import type { ClinicalCase, EvidenceSnippet, Message } from './ClinicalCase';
+
 export const samples = {
     questions: [
         { section: "Ask for a Quick Fact", text: "What is the intravenous half-life of atropine?" },
@@ -87,5 +90,148 @@ export const samples = {
         { section: "Ask a Tough Question", text: "What factors influence the decision between immunotherapy and targeted therapy for metastatic melanoma with a BRAF mutation?" },
         { section: "Ask a Tough Question", text: "How would you optimize heart-failure therapy in a patient with reduced EF, CKD, and recurrent hyperkalemia?" },
         { section: "Ask a Tough Question", text: "How should clinicians weigh anticoagulation risks and benefits in an elderly patient with AF, frequent falls, and a recent GI bleed?" }
-    ]
+    ],
+
+    // Sample Clinical Case: Complex Heart Failure with Multiple Comorbidities
+    sampleClinicalCase: {
+        case_id: "case_heart_failure_2024_001",
+        status: ClinicalCaseStatus.COMPLETED,
+        title: "Complex Heart Failure with Reduced Ejection Fraction in Elderly Patient with Multiple Comorbidities",
+        
+        evidence_snippets: [
+            {
+                snippet_id: "evid_001",
+                text: "Patient: 78-year-old male with history of ischemic cardiomyopathy, EF 25%, diabetes mellitus type 2, chronic kidney disease stage 3a, and atrial fibrillation. Presents with 3-day history of progressive dyspnea, orthopnea, and bilateral lower extremity edema. Physical exam reveals: BP 145/90, HR 110 irregular, JVD elevated, bilateral rales, S3 gallop, 2+ pitting edema bilaterally. Labs: BNP 850 pg/mL, creatinine 1.8 mg/dL, eGFR 35 mL/min/1.73m², sodium 138 mEq/L, potassium 4.2 mEq/L.",
+                source_id: "clinical_note_001",
+                source_type: "clinical_note",
+                source_citation: "Emergency Department Clinical Note - Dr. Sarah Chen, MD",
+                created_at: "2024-01-15T08:30:00Z"
+            },
+            {
+                snippet_id: "evid_002", 
+                text: "Echocardiogram findings: Left ventricular ejection fraction 25%, severe global hypokinesis, moderate mitral regurgitation, moderate tricuspid regurgitation, estimated pulmonary artery systolic pressure 45 mmHg, left atrial enlargement (LA volume index 45 mL/m²). No pericardial effusion. Right ventricular function mildly reduced.",
+                source_id: "echo_001",
+                source_type: "diagnostic_test",
+                source_citation: "Echocardiogram Report - Dr. Michael Rodriguez, MD, FACC",
+                created_at: "2024-01-15T10:15:00Z"
+            },
+            {
+                snippet_id: "evid_003",
+                text: "Current medications: Metformin 1000mg BID, Lisinopril 10mg daily, Metoprolol succinate 50mg daily, Furosemide 40mg daily, Apixaban 5mg BID, Atorvastatin 40mg daily. Patient reports good adherence to medications. No known drug allergies.",
+                source_id: "med_list_001", 
+                source_type: "medication_list",
+                source_citation: "Pharmacy Records - CVS Pharmacy #1234",
+                created_at: "2024-01-15T09:00:00Z"
+            },
+            {
+                snippet_id: "evid_004",
+                text: "2023 AHA/ACC/HFSA Heart Failure Guideline Update: For patients with HFrEF, quadruple therapy with ACE inhibitor/ARB, beta-blocker, MRA, and SGLT2 inhibitor is recommended. SGLT2 inhibitors (dapagliflozin, empagliflozin) are now recommended for all patients with HFrEF regardless of diabetes status. ARNI (sacubitril-valsartan) is preferred over ACE inhibitor for patients with HFrEF who are tolerating ACE inhibitor or ARB therapy.",
+                source_id: "guideline_2023_aha",
+                source_type: "clinical_guideline",
+                source_url: "https://www.ahajournals.org/doi/10.1161/CIR.0000000000001063",
+                source_citation: "Heidenreich PA, et al. 2022 AHA/ACC/HFSA Heart Failure Guideline. Circulation. 2022;145:e895-e1032.",
+                created_at: "2024-01-15T11:00:00Z"
+            },
+            {
+                snippet_id: "evid_005",
+                text: "DAPA-HF Trial Results: Dapagliflozin reduced the risk of cardiovascular death or worsening heart failure by 26% (HR 0.74, 95% CI 0.65-0.85, p<0.001) in patients with HFrEF, regardless of diabetes status. The number needed to treat to prevent one primary outcome event was 21 patients over 2.3 years. Safety profile was favorable with no increase in adverse events.",
+                source_id: "pubmed_31535829",
+                source_type: "pubmed",
+                source_url: "https://pubmed.ncbi.nlm.nih.gov/31535829/",
+                source_citation: "McMurray JJV, et al. Dapagliflozin in Patients with Heart Failure and Reduced Ejection Fraction. N Engl J Med. 2019;381:1995-2008.",
+                created_at: "2024-01-15T11:30:00Z"
+            },
+            {
+                snippet_id: "evid_006",
+                text: "PARADIGM-HF Trial: Sacubitril-valsartan (ARNI) reduced cardiovascular death or heart failure hospitalization by 20% compared to enalapril (HR 0.80, 95% CI 0.73-0.87, p<0.001) in patients with HFrEF. The benefit was consistent across all subgroups including elderly patients and those with CKD. ARNI was associated with higher rates of hypotension but lower rates of hyperkalemia and renal dysfunction.",
+                source_id: "pubmed_25107801",
+                source_type: "pubmed", 
+                source_url: "https://pubmed.ncbi.nlm.nih.gov/25107801/",
+                source_citation: "McMurray JJV, et al. Angiotensin-Neprilysin Inhibition versus Enalapril in Heart Failure. N Engl J Med. 2014;371:993-1004.",
+                created_at: "2024-01-15T12:00:00Z"
+            },
+            {
+                snippet_id: "evid_007",
+                text: "Laboratory results from admission: Hemoglobin 11.2 g/dL, hematocrit 33.5%, WBC 8.2 K/μL, platelets 245 K/μL. Comprehensive metabolic panel: glucose 145 mg/dL, BUN 28 mg/dL, creatinine 1.8 mg/dL, eGFR 35 mL/min/1.73m², sodium 138 mEq/L, potassium 4.2 mEq/L, chloride 102 mEq/L, CO2 24 mEq/L, calcium 9.1 mg/dL, phosphorus 3.8 mg/dL, magnesium 1.9 mg/dL. Liver function tests within normal limits.",
+                source_id: "labs_001",
+                source_type: "laboratory_results",
+                source_citation: "Laboratory Results - Quest Diagnostics",
+                created_at: "2024-01-15T09:30:00Z"
+            },
+            {
+                snippet_id: "evid_008",
+                text: "Chest X-ray findings: Cardiomegaly with cardiothoracic ratio of 0.65, bilateral pleural effusions (small to moderate), pulmonary vascular congestion, no acute pulmonary edema. No pneumothorax or pneumonia. Bony structures unremarkable.",
+                source_id: "cxr_001",
+                source_type: "diagnostic_test",
+                source_citation: "Chest X-ray Report - Dr. Jennifer Liu, MD",
+                created_at: "2024-01-15T09:45:00Z"
+            },
+            {
+                snippet_id: "evid_009",
+                text: "2024 ADA Standards of Care: For patients with diabetes and heart failure, SGLT2 inhibitors are recommended as first-line therapy for cardiovascular protection. Metformin remains the preferred first-line agent for diabetes management but should be used cautiously in patients with eGFR <30 mL/min/1.73m². Consider dose reduction or discontinuation if eGFR <30.",
+                source_id: "ada_2024_guidelines",
+                source_type: "clinical_guideline",
+                source_url: "https://diabetesjournals.org/care/issue/47/Supplement_1",
+                source_citation: "American Diabetes Association. Standards of Care in Diabetes—2024. Diabetes Care. 2024;47(Suppl. 1):S1-S212.",
+                created_at: "2024-01-15T13:00:00Z"
+            },
+            {
+                snippet_id: "evid_010",
+                text: "Patient's social history: Lives alone in single-story home, independent with ADLs, has home health aide 3x/week for assistance with medication management and transportation. Family history significant for father with MI at age 65, mother with diabetes. Social support from adult daughter who lives 30 minutes away. Patient is a retired engineer, former smoker (quit 15 years ago, 30 pack-year history).",
+                source_id: "social_hx_001",
+                source_type: "clinical_note",
+                source_citation: "Social History Assessment - Nurse Practitioner Lisa Wang, NP",
+                created_at: "2024-01-15T14:00:00Z"
+            }
+        ] as EvidenceSnippet[],
+
+        messages: [
+            createEmptyMessage("user_001", MessageType.USER, "I have a 78-year-old male patient with heart failure, diabetes, and kidney disease who presented with acute decompensation. His EF is 25% and he's currently on lisinopril, metoprolol, and furosemide. What's the best approach for optimizing his heart failure therapy?"),
+            
+            createEmptyMessage("system_001", MessageType.SYSTEM, "", { event_name: "agent_thinking", agent_id: "cardiology_agent", status: "analyzing_case" }),
+            
+            createEmptyMessage("cardiology_agent", MessageType.AGENT, "I'll analyze this complex heart failure case. Based on the patient's profile - elderly male with HFrEF (EF 25%), diabetes, CKD stage 3a, and atrial fibrillation - I need to consider multiple factors for optimal therapy. Let me start by reviewing current guidelines and evidence for this patient population."),
+            
+            createEmptyMessage("system_002", MessageType.SYSTEM, "", { event_name: "tool_calling", tool_name: "guideline_search", parameters: { condition: "heart_failure_reduced_ef", year: "2023" } }),
+            
+            createEmptyMessage("guideline_tool", MessageType.TOOL, "Retrieved 2023 AHA/ACC/HFSA Heart Failure Guidelines. Key recommendations for HFrEF include quadruple therapy: ACE inhibitor/ARB, beta-blocker, MRA, and SGLT2 inhibitor. For patients with diabetes and HFrEF, SGLT2 inhibitors are now first-line. ARNI (sacubitril-valsartan) is preferred over ACE inhibitor when tolerated.", { tool_response: { guidelines_found: 5, key_recommendations: 12 } }),
+            
+            createEmptyMessage("system_003", MessageType.SYSTEM, "", { event_name: "tool_calling", tool_name: "evidence_search", parameters: { drug: "dapagliflozin", condition: "heart_failure" } }),
+            
+            createEmptyMessage("evidence_tool", MessageType.TOOL, "Found DAPA-HF trial results: Dapagliflozin reduced CV death or HF hospitalization by 26% (HR 0.74, 95% CI 0.65-0.85) in HFrEF patients regardless of diabetes status. NNT was 21 patients over 2.3 years. Safety profile was favorable.", { tool_response: { trials_found: 3, primary_outcome: "CV death or HF hospitalization", hazard_ratio: 0.74 } }),
+            
+            createEmptyMessage("cardiology_agent", MessageType.AGENT, "Excellent. The evidence strongly supports adding dapagliflozin to this patient's regimen. However, I need to consider his CKD stage 3a (eGFR 35). Let me check the renal dosing requirements and contraindications."),
+            
+            createEmptyMessage("system_004", MessageType.SYSTEM, "", { event_name: "tool_calling", tool_name: "drug_interaction_checker", parameters: { medications: ["lisinopril", "metoprolol", "furosemide", "dapagliflozin"], patient_conditions: ["CKD_stage_3a", "diabetes", "atrial_fibrillation"] } }),
+            
+            createEmptyMessage("pharmacy_tool", MessageType.TOOL, "Drug interaction analysis complete. Dapagliflozin is safe in CKD stage 3a (eGFR ≥30). No significant interactions with current medications. Consider monitoring for volume depletion with furosemide. ARNI (sacubitril-valsartan) would require stopping lisinopril first due to ACE inhibitor overlap.", { tool_response: { interactions_found: 0, warnings: 1, recommendations: 3 } }),
+            
+            createEmptyMessage("nephrology_agent", MessageType.AGENT, "I agree with adding dapagliflozin. For this patient's CKD stage 3a, dapagliflozin is appropriate and may actually provide renal protection. However, I'm concerned about the potential for ARNI in the setting of his elevated creatinine (1.8 mg/dL). Let me assess the PARADIGM-HF trial data for patients with similar renal function."),
+            
+            createEmptyMessage("system_005", MessageType.SYSTEM, "", { event_name: "tool_calling", tool_name: "trial_subgroup_analysis", parameters: { trial: "PARADIGM-HF", subgroup: "CKD_stage_3", outcome: "safety_efficacy" } }),
+            
+            createEmptyMessage("trial_analysis_tool", MessageType.TOOL, "PARADIGM-HF subgroup analysis for CKD stage 3 patients (eGFR 30-60): ARNI showed consistent benefit with 18% reduction in CV death or HF hospitalization (HR 0.82, 95% CI 0.70-0.96). Safety profile acceptable with higher rates of hypotension (8.2% vs 5.8%) but lower hyperkalemia (11.2% vs 13.6%). No increase in renal adverse events.", { tool_response: { subgroup_size: 1856, primary_outcome_hr: 0.82, safety_events: "acceptable" } }),
+            
+            createEmptyMessage("cardiology_agent", MessageType.AGENT, "Based on the evidence, I recommend a stepwise approach: 1) Add dapagliflozin 10mg daily (renal dose appropriate for eGFR 35), 2) Consider transitioning from lisinopril to ARNI after ensuring hemodynamic stability, 3) Optimize beta-blocker to target dose if tolerated, 4) Consider adding MRA if potassium allows. This follows the 2023 guidelines for quadruple therapy."),
+            
+            createEmptyMessage("endocrinology_agent", MessageType.AGENT, "From a diabetes perspective, dapagliflozin is excellent choice as it addresses both heart failure and diabetes management. His current metformin dose (1000mg BID) is appropriate for his eGFR. I'd recommend monitoring for euglycemic DKA risk with SGLT2 inhibitors, though this is rare in heart failure patients. Consider checking ketones if he develops nausea/vomiting."),
+            
+            createEmptyMessage("system_006", MessageType.SYSTEM, "", { event_name: "tool_calling", tool_name: "dosing_calculator", parameters: { drug: "dapagliflozin", eGFR: 35, weight: 85, age: 78 } }),
+            
+            createEmptyMessage("dosing_tool", MessageType.TOOL, "Dapagliflozin dosing calculation: Standard dose 10mg daily is appropriate for eGFR ≥30. No dose adjustment needed for this patient's renal function. Monitor for volume depletion, especially with concurrent furosemide. Consider reducing furosemide if patient becomes volume depleted.", { tool_response: { recommended_dose: "10mg daily", adjustments_needed: "none", monitoring_required: ["volume_status", "electrolytes"] } }),
+            
+            createEmptyMessage("pharmacy_agent", MessageType.AGENT, "I've reviewed the medication regimen. Current therapy is suboptimal - missing both SGLT2 inhibitor and MRA. For ARNI transition, we need to stop lisinopril for 36 hours before starting sacubitril-valsartan. I recommend starting with 24/26mg BID and titrating to 49/51mg BID as tolerated. Monitor blood pressure closely during transition."),
+            
+            createEmptyMessage("system_007", MessageType.SYSTEM, "", { event_name: "tool_calling", tool_name: "contraindication_checker", parameters: { drug: "spironolactone", conditions: ["CKD_stage_3a", "hyperkalemia_risk"], current_meds: ["lisinopril", "dapagliflozin"] } }),
+            
+            createEmptyMessage("contraindication_tool", MessageType.TOOL, "MRA (spironolactone) contraindication check: Patient has CKD stage 3a with creatinine 1.8 mg/dL. MRA is contraindicated if eGFR <30, but this patient's eGFR is 35. However, with concurrent ACE inhibitor and potential ARNI, hyperkalemia risk is significant. Consider eplerenone (more selective) or defer MRA until after ARNI optimization and potassium monitoring.", { tool_response: { contraindicated: false, risk_level: "moderate", alternatives: ["eplerenone", "defer_until_stable"] } }),
+            
+            createEmptyMessage("cardiology_agent", MessageType.AGENT, "Final recommendation: 1) Add dapagliflozin 10mg daily immediately, 2) Transition to ARNI (sacubitril-valsartan) starting 24/26mg BID after 36-hour washout from lisinopril, 3) Optimize metoprolol to target dose (200mg daily) if tolerated, 4) Defer MRA until after ARNI optimization and stable potassium <5.0 mEq/L, 5) Close follow-up in 2 weeks to assess tolerance and titrate doses. This approach maximizes guideline-directed medical therapy while minimizing risk."),
+            
+            createEmptyMessage("system_008", MessageType.SYSTEM, "", { event_name: "system_notification", status: "analysis_complete", summary: "Multi-agent analysis completed with consensus on quadruple therapy approach" })
+        ] as Message[],
+
+        created_at: "2024-01-15T08:00:00Z",
+        updated_at: "2024-01-15T15:30:00Z"
+    } as ClinicalCase
 };

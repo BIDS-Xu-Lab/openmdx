@@ -18,6 +18,14 @@ const onClickSample = (sample: any) => {
     onInputTextarea();
 }
 
+const onClickUpload = () => {
+    console.log('upload');
+}
+
+const onClickRecord = () => {
+    console.log('record');
+}
+
 const onInputTextarea = () => {
     // get the number of characters in the textarea
 
@@ -53,23 +61,40 @@ const get_samples = () => {
 <template>
 <div class="flex flex-col items-center mt-8 gap-3 w-full">
 
-    <div class="w-full flex flex-row align-items-end justify-end" style="max-width: 40rem;">
-        <div class="relative w-full">
+    <div class="w-full flex flex-col" style="max-width: 40rem;">
+        <div class="relative w-full p-4 rounded-2xl border focus-within:border-primary">
             <textarea
                 ref="el_textarea"
                 id="input-textarea"
                 wrap="soft"
                 v-model="input_text"
                 :rows="n_rows"
-                class="w-full p-4 pr-16 rounded-2xl border resize-none shadow focus:outline-red-500"
+                class="w-full p-4 resize-none border-0 focus:outline-none"
                 placeholder="Describe a clinical case or question..."
                 @input="onInputTextarea"
                 style="overflow: auto; max-height: 20rem;"
             ></textarea>
-            <div style="position: absolute; bottom: 0; right: 0; transform: translateX(-40%) translateY(-38%);">
-                <Button @click="onClickSubmit" class="!p-2 !h-10">
-                    <font-awesome-icon icon="fa-solid fa-paper-plane" class="text-2xl"/>
-                </Button>
+            <div class="flex flex-row justify-between align-items-center">
+                <div class="flex flex-row gap-2 align-items-center">
+                    <Button text @click="onClickUpload" 
+                        v-tooltip.bottom="'Upload a clinical case file, e.g. a PDF, a Markdown, or a text file'"
+                        class="!p-2 !h-10">
+                        <font-awesome-icon icon="fa-solid fa-upload" class="text-2xl"/>
+                    </Button>
+                </div>
+
+                <div class="flex flex-row gap-2 align-items-center">
+                    <Button text @click="onClickRecord" 
+                        v-tooltip.bottom="'Speak your clinical case or question'"
+                        class="!p-2 !h-10">
+                        <font-awesome-icon icon="fa-solid fa-microphone" class="text-2xl"/>
+                    </Button>
+                    <Button @click="onClickSubmit" 
+                        v-tooltip.bottom="'Submit your clinical case or question'"
+                        class="!p-2 !h-10">
+                        <font-awesome-icon icon="fa-solid fa-paper-plane" class="text-2xl"/>
+                    </Button>
+                </div>
             </div>
         </div>
     </div>
