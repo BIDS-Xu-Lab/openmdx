@@ -9,6 +9,7 @@ import { createPinia } from 'pinia';
 import router from './router';
 import { useDataStore } from './stores/DataStore';
 import { vCite } from './directives/v-cite';
+import ToastService from 'primevue/toastservice';
 
 // create the app
 const app = createApp(App)
@@ -22,6 +23,9 @@ app.use(router)
 
 // add the v-cite directive
 app.directive('cite', vCite)
+
+// add the toast service
+app.use(ToastService);
 
 ///////////////////////////////////////////////////////////
 // PrimeVue

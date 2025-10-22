@@ -16,7 +16,7 @@
 
   --text-color: rgba(255, 255, 255, 0.87);
   --background-color: rgb(36, 36, 36);
-  --border-color: rgba(0, 0, 0, 0.1);
+  --border-color: rgb(63, 63, 63);
   --shadow-color: rgba(221, 221, 221, 0.1);
   
   --hover-color: rgba(0, 0, 0, 0.1);
@@ -76,6 +76,36 @@ body {
     position: relative;
     z-index: 10;
     width: 100%;
+}
+
+/* for markdown */
+.message-content h1 {
+    @apply text-xl font-bold;
+    color: var(--text-color);
+}
+.message-content h2 {
+    @apply text-lg font-bold;
+    color: var(--text-color);
+}
+.message-content h3 {
+    @apply text-base font-bold;
+    color: var(--text-color);
+}
+.message-content h4 {
+  @apply text-base;
+  color: var(--text-color);
+}
+.message-content h5 {
+  @apply text-base italic;
+  color: var(--text-color);
+}
+.message-content h6 {
+  @apply text-sm italic;
+  color: var(--text-color);
+}
+
+.prose {
+  color: var(--text-color);
 }
 
 /* override the tailwind colors */

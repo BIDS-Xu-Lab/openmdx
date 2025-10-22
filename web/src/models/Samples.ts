@@ -798,18 +798,32 @@ export const clinical_case = {
         createEmptyMessage(
             "msg_final_001",
             MessageType.AGENT,
-            "Best approach to optimize therapy:\n" +
-                "1) Start an SGLT2 inhibitor now (dapagliflozin 10 mg daily; renal function adequate at eGFR 35). <cite>evid_005</cite> <cite>evid_009</cite> <cite>evid_007</cite>\n" +
-                "2) Transition from lisinopril to sacubitril-valsartan after a 36-hour washout; begin 24/26 mg BID and uptitrate as tolerated. <cite>evid_004</cite> <cite>evid_006</cite>\n" +
-                "3) Up-titrate metoprolol succinate toward target as tolerated (monitor HR/BP). <cite>evid_004</cite>\n" +
-                "4) Consider adding an MRA once potassium is consistently <5.0 mEq/L and renal function remains stable; choose eplerenone if hyperkalemia risk is a concern. <cite>evid_004</cite> <cite>evid_007</cite>\n" +
-                "5) Monitor volume status and electrolytes closely (loop diuretic adjustment may be needed). <cite>evid_007</cite>\n" +
-                "This plan aligns with guideline-directed quadruple therapy for HFrEF and is supported by major trials in similar populations.",
-            {
-                agent_name: "Review Agent",
-            },
-            "final",
-        ),
+            "Comprehensive plan to optimize heart failure therapy (HFrEF, EF 25%, diabetes, CKD3a, AF):\n\n" +
+              "## Assessment & goals:\n" +
+              "- The presentation (dyspnea/orthopnea/edema, JVD, rales, S3) with EF 25% and CKD3a is consistent with acute decompensated HFrEF on sub-optimal GDMT. <cite>evid_001</cite> <cite>evid_002</cite> <cite>evid_007</cite>\n" +
+              "- Therapeutic goals: relieve congestion, initiate/optimize disease-modifying therapy (quadruple therapy), minimize renal/electrolyte complications, and reduce readmission/CV death risk. <cite>evid_004</cite>\n\n" +
+              "## Stepwise disease-modifying therapy:\n" +
+              "1) Start SGLT2 inhibitor now — dapagliflozin 10 mg once daily. Kidney function is adequate (eGFR 35), and benefits extend regardless of diabetes status; monitor for volume depletion given concurrent loop diuretic. <cite>evid_005</cite> <cite>evid_009</cite> <cite>evid_007</cite>\n" +
+              "2) Transition ACEi → ARNI — stop lisinopril and observe a 36-hour washout, then start sacubitril/valsartan 24/26 mg BID, uptitrating as tolerated (target per BP/renal status). ARNI is preferred over ACEi in HFrEF and demonstrated superior outcomes. <cite>evid_004</cite> <cite>evid_006</cite>\n" +
+              "3) Beta-blocker optimization — continue metoprolol succinate and uptitrate toward target as tolerated with HR/BP guidance (e.g., q2–4 weeks). This provides mortality and hospitalization benefit in HFrEF. <cite>evid_004</cite>\n" +
+              "4) Consider MRA — once potassium is <5.0 mEq/L and renal function remains stable, add an MRA (consider eplerenone if hyperkalemia risk is a concern). With CKD3a (eGFR 35), MRA is not absolutely contraindicated but requires close K/Cr monitoring. <cite>evid_004</cite> <cite>evid_007</cite>\n\n" +
+              "## Congestion management & safety net:\n" +
+              "- Continue loop diuretic with daily weights and adjust to euvolemia; watch for SGLT2-related volume shifts. Check BMP within 3–7 days after changes. <cite>evid_007</cite> <cite>evid_005</cite>\n" +
+              "- During ACEi→ARNI transition, monitor BP, renal function, and potassium closely; counsel on hypotension symptoms. <cite>evid_006</cite> <cite>evid_004</cite>\n\n" +
+              "## Diabetes and CKD co-management:\n" +
+              "- Maintain metformin at current dose if clinically appropriate; reassess if eGFR declines toward <30. SGLT2 therapy provides CV/renal protection in diabetes with HF. <cite>evid_009</cite> <cite>evid_005</cite>\n" +
+              "- For CKD3a, reinforce sick-day rules (hold SGLT2 if poor intake/prolonged fasting/acute illness); monitor electrolytes and renal function during uptitrations. <cite>evid_009</cite> <cite>evid_007</cite>\n\n" +
+              "## AF and background therapy:\n" +
+              "- Continue anticoagulation (apixaban on board) and statin for ischemic disease as per current regimen; review doses with renal function trends. <cite>evid_003</cite> <cite>evid_007</cite>\n\n" +
+              "## Follow-up & monitoring plan:\n" +
+              "- Labs: BMP (K/Cr/eGFR/Na) in 3–7 days after SGLT2 start and after ARNI initiation/titrations; repeat with any dose change or symptom shift. <cite>evid_007</cite>\n" +
+              "- Clinic review in ~2 weeks to up-titrate ARNI and beta-blocker if stable; reassess volume status, BP, HR, symptoms, and weight trajectory. <cite>evid_004</cite>\n" +
+              "- Education: daily weights, salt/fluid guidance, hypotension and dehydration red-flags, rare euglycemic DKA symptoms (seek care if nausea/vomiting/abdominal pain). <cite>evid_009</cite> <cite>evid_005</cite>\n\n" +
+              "## Why this plan:\n" +
+              "- It implements guideline-directed quadruple therapy for HFrEF with evidence of reduced CV death and HF hospitalization (DAPA-HF, PARADIGM-HF) and guideline preference for ARNI over ACEi when feasible, tailored to this patient's EF 25% and CKD3a. <cite>evid_004</cite> <cite>evid_005</cite> <cite>evid_006</cite> <cite>evid_002</cite> <cite>evid_007</cite>",
+            { agent_name: "Review Agent" },
+            "final"
+          ),
     ] as Message[],
 
     created_at: "2024-01-15T08:00:00Z",

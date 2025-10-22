@@ -3,15 +3,16 @@ import { ref, computed, onMounted } from 'vue';
 import { useDataStore } from '../stores/DataStore';
 import { useCaseStore } from '../stores/CaseStore';
 import LeftSidebar from '../components/LeftSidebar.vue';
-import CiteTag from '../components/CiteTag.vue';
 import { MessageType } from '../models/ClinicalCase';
 import type { Message } from '../models/ClinicalCase';
 import { marked } from 'marked';
+import { useToast } from 'primevue/usetoast';
+
+const toast = useToast();
 
 // PrimeVue components
 import Button from 'primevue/button';
 import Textarea from 'primevue/textarea';
-import OverlayPanel from 'primevue/overlaypanel';
 
 const data_store = useDataStore();
 const case_store = useCaseStore();
@@ -115,6 +116,17 @@ const shortenText = (text: string, maxLength: number) => {
     return text.slice(0, maxLength) + '...';
 };
 
+const copyMessageToClipboard = (message: Message) => {
+    navigator.clipboard.writeText(message.text || '');
+
+    toast.add({
+        severity: 'info',
+        summary: 'Copied to clipboard',
+        detail: 'The answer has been copied to your clipboard',
+        life: 3000
+    });
+};
+
 // Initialize case data
 onMounted(() => {
     if (clinical_case.value) {
@@ -201,7 +213,7 @@ onMounted(() => {
                         </div>
                     </div>
 
-                    <div v-else-if="['AGENT'].includes(message.message_type) && (message.stage == 'final' || case_store.show_thinking)"
+                    <div v-else-if="['AGENT'].includes(message.message_type) && case_store.show_thinking"
                         class="message-item agent-message " >
                         <div class="message-header flex justify-between items-center gap-2">
                             <div class="flex items-center gap-2">
@@ -220,7 +232,9 @@ onMounted(() => {
                             <div class="message-toolbar mt-2 flex gap-2">
                                 <Button size="small" icon="pi pi-thumbs-up" class="p-button-text p-button-sm" />
                                 <Button size="small" icon="pi pi-thumbs-down" class="p-button-text p-button-sm" />
-                                <Button size="small" icon="pi pi-copy" class="p-button-text p-button-sm" />
+                                <Button size="small" icon="pi pi-copy"  
+                                    class="p-button-text p-button-sm"
+                                    @click="copyMessageToClipboard(message)" />
                             </div>
                         </div>
                         
@@ -229,6 +243,35 @@ onMounted(() => {
                             v-cite>
                         </div>
                     </div>
+
+                    <div v-else-if="['AGENT'].includes(message.message_type) && message.stage == 'final'"
+                        class="message-item border rounded-lg" >
+                        <div class="message-header rounded-t-lg flex justify-between items-center gap-2 px-4 py-2 !h-12 bg-gray-100 dark:bg-gray-900 border-b">
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium text-sm">
+                                    <font-awesome-icon icon="fa-solid fa-check-circle" />
+                                </span>
+                                <span>
+                                    Answer to your question
+                                </span>
+                            </div>
+                            
+                            <!-- System message toolbar -->
+                            <div class="message-toolbar mt-2 flex gap-2">
+                                <Button size="small" icon="pi pi-thumbs-up" class="p-button-text p-button-sm" />
+                                <Button size="small" icon="pi pi-thumbs-down" class="p-button-text p-button-sm" />
+                                <Button size="small" icon="pi pi-copy"      
+                                    @click="copyMessageToClipboard(message)"
+                                    class="p-button-text p-button-sm" />
+                            </div>
+                        </div>
+                        
+                        <div class="message-content prose max-w-none text-base/5 p-4"
+                            v-html="renderMessageText(message.text || '')" 
+                            v-cite>
+                        </div>
+                    </div>
+                    
 
                     <div v-else-if="['PLACEHOLDER'].includes(message.message_type)"
                         class="message-item placeholder-message " >
@@ -240,7 +283,7 @@ onMounted(() => {
 
                     <div v-else-if="['TOOL'].includes(message.message_type) && (message.stage == 'final' || case_store.show_thinking)"
                         class="message-item tool-message " >
-                        <div class="message-header flex justify-between items-center gap-2">
+                        <div class="message-header p-2 flex justify-between items-center gap-2">
                             <div class="flex items-center gap-2">
                                 <span class="font-medium text-sm">
                                     <font-awesome-icon icon="fa-solid fa-screwdriver-wrench" />
@@ -257,16 +300,18 @@ onMounted(() => {
                             <div class="message-toolbar mt-2 flex gap-2">
                                 <Button size="small" icon="pi pi-thumbs-up" class="p-button-text p-button-sm" />
                                 <Button size="small" icon="pi pi-thumbs-down" class="p-button-text p-button-sm" />
-                                <Button size="small" icon="pi pi-copy" class="p-button-text p-button-sm" />
+                                <Button size="small" icon="pi pi-copy" 
+                                    class="p-button-text p-button-sm"
+                                    @click="copyMessageToClipboard(message)" />
                             </div>
                         </div>
                         
-                        <div class="message-content text-sm"
+                        <div class="message-content text-sm p-2"
                             v-html="renderMessageText(message.text || '')" 
                             v-cite>
                         </div>
 
-                        <div class="flex flex-row gap-2 border-t pt-2 mt-2">
+                        <div class="flex flex-row gap-2 border-t pt-2 mt-2 p-2">
                             <div v-for="parameter_key in Object.keys(message.payload_json?.tool_parameters)" :key="parameter_key"
                                 class="flex flex-col">
                                 <span class="text-xs">
@@ -282,7 +327,7 @@ onMounted(() => {
             </div>
 
             <!-- Chat Footer -->
-            <div class="chat-footer border-t pl-4 pr-2 py-2">
+            <div class="chat-footer border-t pl-4 pr-2 py-2 shadow-[0_-4px_6px_rgba(0,0,0,0.1)]">
                 <div class="flex flex-col gap-2">
                     <!-- Input area -->
                     <Textarea 
@@ -432,7 +477,7 @@ onMounted(() => {
 <Popover ref="cite_popup_ref" 
     @mouseenter="handleMouseEnterOverlayPanel"
     @mouseleave="handleMouseLeaveOverlayPanel"
-    class="cite-popup">
+    class="cite-popup shadow-sm">
 <div class="p-3 max-w-sm flex flex-col gap-2">
     <div class="font-medium">
         {{ case_store.current_hovered_evidence?.source_type }}
@@ -470,8 +515,7 @@ onMounted(() => {
 }
 
 .message-item {
-    padding: 0.5rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
 }
 .message-header {
     height: 2rem;
