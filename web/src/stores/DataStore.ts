@@ -17,6 +17,19 @@ export const useDataStore = defineStore('data', {
     },
     
     actions: {
+        init() {
+            this.updateColorScheme();
+        },
+
+        updateColorScheme() {
+            const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            if (darkModeMediaQuery.matches) {
+                this.color_scheme = 'dark';
+            } else {
+                this.color_scheme = 'light';
+            }
+        },
+
         setCurrentPage(page: string) {
             this.current_page = page;
         },

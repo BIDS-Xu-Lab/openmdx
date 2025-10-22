@@ -171,7 +171,7 @@ export const useCaseStore = defineStore('case', {
         },
 
         exportChatHistory() {
-            const messages = this.messages;
+            const messages = this.clinical_case?.messages || [];
             const chatData = {
                 case_id: this.clinical_case?.case_id,
                 title: this.clinical_case?.title,

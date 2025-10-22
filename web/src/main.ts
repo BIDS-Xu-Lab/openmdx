@@ -64,6 +64,7 @@ const store = useDataStore();
 const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
 function handleThemeChange(event: MediaQueryListEvent) {
+  console.log('* handleThemeChange', event.matches);
   if (event.matches) {
     store.color_scheme = 'dark';
   } else {
@@ -72,6 +73,8 @@ function handleThemeChange(event: MediaQueryListEvent) {
 }
 
 darkModeMediaQuery.addEventListener('change', handleThemeChange);
+
+store.init();
 
 // bind a sample clinical case to the store
 import { clinical_case } from "./models/Samples";

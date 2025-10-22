@@ -24,15 +24,10 @@ const current_evidence = computed(() => case_store.current_evidence);
 const evidence_count = computed(() => case_store.evidence_count);
 
 // Chat toolbar items
-const chat_toolbar_items = computed(() => [
-    // {
-    //     label: 'Copy',
-    //     icon: 'pi pi-copy',
-    //     command: () => case_store.copyChatHistory()
-    // },
+const chat_toolbar_items = [
     {
-        label: 'Export',
         icon: 'pi pi-download',
+        label: 'Export as JSON',
         command: () => case_store.exportChatHistory()
     },
     {
@@ -43,7 +38,7 @@ const chat_toolbar_items = computed(() => [
             { label: 'Filter', icon: 'pi pi-filter' }
         ]
     }
-]);
+];
 
 const chat_toolbar_menu_ref = ref();
 const toggleChatToolbarMenu = (event: Event) => {
@@ -51,21 +46,19 @@ const toggleChatToolbarMenu = (event: Event) => {
 };
 
 // Evidence toolbar items
-const evidence_toolbar_items = computed(() => [
+const evidence_toolbar_menu_ref = ref();
+const evidence_toolbar_items = [
     {
-        label: 'Export',
-        icon: 'pi pi-download',
-        command: () => case_store.exportEvidence()
-    },
-    {
-        label: 'More',
+        label: 'Download All Evidence',
         items: [
-            { label: 'View All', icon: 'pi pi-list' },
-            { label: 'Search', icon: 'pi pi-search' },
-            { label: 'Filter', icon: 'pi pi-filter' }
+            { label: 'As a JSON file', icon: 'pi pi-list', command: () => case_store.exportEvidence() },
         ]
     }
-]);
+];
+
+const toggleEvidenceToolbarMenu = (event: Event) => {
+    evidence_toolbar_menu_ref.value.toggle(event);
+};
 
 // Methods
 const handleSubmitMessage = () => {
@@ -182,6 +175,7 @@ onMounted(() => {
                         @click="toggleChatToolbarMenu" 
                         aria-haspopup="true" 
                         aria-controls="chat_toolbar_menu" />
+
                     <Menu ref="chat_toolbar_menu_ref"
                         id="chat_toolbar_menu" 
                         :model="chat_toolbar_items" 
@@ -382,11 +376,11 @@ onMounted(() => {
                         size="small"
                         class="mr-2"
                         icon="pi pi-ellipsis-v" 
-                        @click="toggleChatToolbarMenu" 
+                        @click="toggleEvidenceToolbarMenu" 
                         aria-haspopup="true" 
                         aria-controls="chat_toolbar_menu" />
-                    <Menu ref="chat_toolbar_menu_ref"
-                        id="chat_toolbar_menu" 
+                    <Menu ref="evidence_toolbar_menu_ref"
+                        id="evidence_toolbar_menu" 
                         :model="evidence_toolbar_items" 
                         :popup="true" />
                 </div>
