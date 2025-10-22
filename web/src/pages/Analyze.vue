@@ -18,7 +18,6 @@ const case_store = useCaseStore();
 
 // Computed properties
 const clinical_case = computed(() => data_store.c3);
-const messages = computed(() => case_store.messages);
 const evidence_snippets = computed(() => case_store.evidence_snippets);
 const current_evidence = computed(() => case_store.current_evidence);
 const evidence_count = computed(() => case_store.evidence_count);
@@ -105,7 +104,7 @@ const handleMouseEnterOverlayPanel = () => {
 
 const handleMouseLeaveOverlayPanel = () => {
     console.log('handleMouseLeaveOverlayPanel');
-    case_store.hideHoveredSnippet();
+    case_store.hideHoveredSnippet(true);
 };
 
 
@@ -138,6 +137,7 @@ onMounted(() => {
             <!-- Chat Header -->
             <div class="chat-header h-12 flex items-center justify-between pl-4 border-b">
                 <div class="flex items-center gap-2">
+                    <font-awesome-icon icon="fa-solid fa-magnifying-glass" />
                     <span class="font-semibold">
                         Analyzer
                     </span>
@@ -181,40 +181,101 @@ onMounted(() => {
 
             <!-- Chat Body -->
             <div class="chat-body flex-1 overflow-y-auto p-4 space-y-4">
-                <template v-for="message in messages" :key="message.message_id">
-                    <div v-if="['USER', 'AGENT', 'TOOL'].includes(message.message_type)"
-                        class="message-item hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md p-2" 
-                        :class="{ 'user-message': message.message_type === 'USER', 
-                        'system-message': message.message_type !== 'USER' }">
-                    
+                <template v-for="message in case_store.rendered_messages" :key="message.message_id">
+                    <div v-if="['USER'].includes(message.message_type)"
+                        class="message-item user-message ">
                         <div class="message-header flex justify-between items-center gap-2">
                             <div class="flex items-center gap-2">
                                 <span class="font-medium text-sm">
-                                    {{ message.message_type === 'USER' ? 'User' : 
-                                    message.message_type === 'AGENT' ? 'Agent' : 
-                                    message.message_type === 'TOOL' ? 'Tool' : 'System' }}
+                                    <font-awesome-icon icon="fa-solid fa-user" />
                                 </span>
-                                <span class="text-xs text-gray-500">{{ new Date(message.created_at).toLocaleTimeString() }}</span>
+                                <span class="text-xs">
+                                    {{ new Date(message.created_at).toLocaleTimeString() }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="message-content prose max-w-none text-base/6"
+                            v-html="renderMessageText(message.text || '')" 
+                            v-cite>
+                        </div>
+                    </div>
+
+                    <div v-else-if="['AGENT'].includes(message.message_type) && (message.stage == 'final' || case_store.show_thinking)"
+                        class="message-item agent-message " >
+                        <div class="message-header flex justify-between items-center gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium text-sm">
+                                    <font-awesome-icon icon="fa-solid fa-robot" />
+                                </span>
+                                <span>
+                                    {{ message.payload_json?.agent_name }}
+                                </span>
+                                <span class="text-xs">
+                                    {{ new Date(message.created_at).toLocaleTimeString() }}
+                                </span>
                             </div>
                             
                             <!-- System message toolbar -->
-                            <div v-if="message.message_type !== 'USER'" class="message-toolbar mt-2 flex gap-2">
+                            <div class="message-toolbar mt-2 flex gap-2">
                                 <Button size="small" icon="pi pi-thumbs-up" class="p-button-text p-button-sm" />
                                 <Button size="small" icon="pi pi-thumbs-down" class="p-button-text p-button-sm" />
                                 <Button size="small" icon="pi pi-copy" class="p-button-text p-button-sm" />
                             </div>
                         </div>
                         
-                        <div class="message-content">
-                            <!-- <template v-for="(part, index) in parseMessageText(message.text || '')" :key="index">
-                                <span v-if="part.type === 'text'">
-                                    <span v-html="part.content"></span>
+                        <div class="message-content prose max-w-none text-base/6"
+                            v-html="renderMessageText(message.text || '')" 
+                            v-cite>
+                        </div>
+                    </div>
+
+                    <div v-else-if="['PLACEHOLDER'].includes(message.message_type)"
+                        class="message-item placeholder-message " >
+                        <div class="message-content italic text-center">
+                            <font-awesome-icon icon="fa-regular fa-clock" />
+                            {{ message.text }}
+                        </div>
+                    </div>
+
+                    <div v-else-if="['TOOL'].includes(message.message_type) && (message.stage == 'final' || case_store.show_thinking)"
+                        class="message-item tool-message " >
+                        <div class="message-header flex justify-between items-center gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium text-sm">
+                                    <font-awesome-icon icon="fa-solid fa-screwdriver-wrench" />
                                 </span>
-                                <CiteTag v-else-if="part.type === 'cite'"
-                                    :snippet_id="part.content"
-                                    @click="handleCiteClick" />
-                            </template> -->
-                            <div v-html="renderMessageText(message.text || '')" v-cite></div>
+                                <span class="italic">
+                                    {{ message.payload_json?.tool_name }}
+                                </span>
+                                <span class="text-xs">
+                                    {{ new Date(message.created_at).toLocaleTimeString() }}
+                                </span>
+                            </div>
+                            
+                            <!-- System message toolbar -->
+                            <div class="message-toolbar mt-2 flex gap-2">
+                                <Button size="small" icon="pi pi-thumbs-up" class="p-button-text p-button-sm" />
+                                <Button size="small" icon="pi pi-thumbs-down" class="p-button-text p-button-sm" />
+                                <Button size="small" icon="pi pi-copy" class="p-button-text p-button-sm" />
+                            </div>
+                        </div>
+                        
+                        <div class="message-content text-sm"
+                            v-html="renderMessageText(message.text || '')" 
+                            v-cite>
+                        </div>
+
+                        <div class="flex flex-row gap-2 border-t pt-2 mt-2">
+                            <div v-for="parameter_key in Object.keys(message.payload_json?.tool_parameters)" :key="parameter_key"
+                                class="flex flex-col">
+                                <span class="text-xs">
+                                    {{ parameter_key }}
+                                </span>
+                                <span class="text-sm">
+                                    {{ message.payload_json?.tool_parameters[parameter_key] }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </template>
@@ -422,6 +483,11 @@ onMounted(() => {
     display: inline-block;
 }
 
+
+.tool-message {
+    margin-left: 2rem;
+    border-left: 2px solid var(--border-color);
+}
 
 .evidence-tab {
     transition: all 0.2s;

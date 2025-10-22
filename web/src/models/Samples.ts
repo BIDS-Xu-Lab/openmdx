@@ -482,7 +482,9 @@ export const clinical_case = {
             "cardiology_agent",
             MessageType.AGENT,
             "I'll analyze this complex heart failure case. Based on the patient's profile—elderly male with HFrEF (EF 25%), diabetes, CKD stage 3a, and atrial fibrillation—I will align recommendations with contemporary guidelines and trials. <cite>evid_001</cite> <cite>evid_002</cite> <cite>evid_004</cite>",
-            {},
+            {
+                agent_name: "Cardiology Agent",
+            },
             "planning",
         ),
 
@@ -505,7 +507,14 @@ export const clinical_case = {
             "guideline_tool",
             MessageType.TOOL,
             "Retrieved 2023 AHA/ACC/HFSA Heart Failure Guidelines. Key recommendations for HFrEF include quadruple therapy: ACE inhibitor/ARB, beta-blocker, MRA, and SGLT2 inhibitor. For patients with diabetes and HFrEF, SGLT2 inhibitors are now first-line. ARNI (sacubitril-valsartan) is preferred over ACE inhibitor when tolerated.",
-            { tool_response: { guidelines_found: 5, key_recommendations: 12 } },
+            { 
+                tool_name: "Guideline Search",
+                tool_parameters: {
+                    condition: "heart_failure_reduced_ef",
+                    year: "2023",
+                },
+                tool_response: { guidelines_found: 5, key_recommendations: 12 } 
+            },
             "tooling",
         ),
 
@@ -529,6 +538,11 @@ export const clinical_case = {
             MessageType.TOOL,
             "Found DAPA-HF trial results: Dapagliflozin reduced CV death or HF hospitalization by 26% (HR 0.74, 95% CI 0.65-0.85) in HFrEF patients regardless of diabetes status. NNT was 21 patients over 2.3 years. Safety profile was favorable.",
             {
+                tool_name: "Trial Search",
+                tool_parameters: {
+                    drug: "dapagliflozin",
+                    condition: "heart_failure",
+                },
                 tool_response: {
                     trials_found: 3,
                     primary_outcome: "CV death or HF hospitalization",
@@ -543,7 +557,9 @@ export const clinical_case = {
             "cardiology_agent",
             MessageType.AGENT,
             "The evidence supports adding a SGLT2 inhibitor (e.g., dapagliflozin) now; renal function is adequate (eGFR 35) for initiation with standard dosing. I will review renal dosing and contraindications next. <cite>evid_005</cite> <cite>evid_007</cite> <cite>evid_009</cite>",
-            {},
+            {
+                agent_name: "Cardiology Agent",
+            },
             "planning",
         ),
 
@@ -576,6 +592,20 @@ export const clinical_case = {
             MessageType.TOOL,
             "Drug interaction analysis complete. Dapagliflozin is safe in CKD stage 3a (eGFR ≥30). No significant interactions with current medications. Consider monitoring for volume depletion with furosemide. ARNI (sacubitril-valsartan) would require stopping lisinopril first due to ACE inhibitor overlap.",
             {
+                tool_name: "Drug Interaction Checker",
+                tool_parameters: {
+                    medications: [
+                        "lisinopril",
+                        "metoprolol",
+                        "furosemide",
+                        "dapagliflozin",
+                    ],
+                    patient_conditions: [
+                        "CKD_stage_3a",
+                        "diabetes",
+                        "atrial_fibrillation",
+                    ],
+                },
                 tool_response: {
                     interactions_found: 0,
                     warnings: 1,
@@ -590,7 +620,9 @@ export const clinical_case = {
             "nephrology_agent",
             MessageType.AGENT,
             "Agree with SGLT2 initiation; data suggest renal and cardiovascular benefit in HFrEF. For ARNI, efficacy persists in CKD stage 3, but we should watch blood pressure and potassium closely. <cite>evid_005</cite> <cite>evid_006</cite> <cite>evid_007</cite>",
-            {},
+            {
+                agent_name: "Nephrology Agent",
+            },
             "planning",
         ),
 
@@ -615,6 +647,12 @@ export const clinical_case = {
             MessageType.TOOL,
             "PARADIGM-HF subgroup analysis for CKD stage 3 patients (eGFR 30-60): ARNI showed consistent benefit with 18% reduction in CV death or HF hospitalization (HR 0.82, 95% CI 0.70-0.96). Safety profile acceptable with higher rates of hypotension (8.2% vs 5.8%) but lower hyperkalemia (11.2% vs 13.6%). No increase in renal adverse events.",
             {
+                tool_name: "Trial Subgroup Analysis",
+                tool_parameters: {
+                    trial: "PARADIGM-HF",
+                    subgroup: "CKD_stage_3",
+                    outcome: "safety_efficacy",
+                },
                 tool_response: {
                     subgroup_size: 1856,
                     primary_outcome_hr: 0.82,
@@ -629,7 +667,9 @@ export const clinical_case = {
             "cardiology_agent",
             MessageType.AGENT,
             "Stepwise plan: (1) Add dapagliflozin 10 mg daily; (2) Transition from lisinopril to ARNI after washout; (3) Up-titrate beta-blocker to target as tolerated; (4) Consider MRA once potassium is stable. This aligns with guideline-directed quadruple therapy. <cite>evid_004</cite> <cite>evid_005</cite> <cite>evid_006</cite> <cite>evid_003</cite>",
-            {},
+            {
+                agent_name: "Cardiology Agent",
+            },
             "planning",
         ),
 
@@ -638,7 +678,9 @@ export const clinical_case = {
             "endocrinology_agent",
             MessageType.AGENT,
             "From a diabetes standpoint, dapagliflozin is appropriate and confers CV/renal benefit. Keep metformin given current eGFR, and monitor for rare euglycemic DKA; check ketones with concerning symptoms. <cite>evid_009</cite> <cite>evid_005</cite> <cite>evid_007</cite>",
-            {},
+            {
+                agent_name: "Endocrinology Agent",
+            },
             "planning",
         ),
 
@@ -664,6 +706,13 @@ export const clinical_case = {
             MessageType.TOOL,
             "Dapagliflozin dosing calculation: Standard dose 10mg daily is appropriate for eGFR ≥30. No dose adjustment needed for this patient's renal function. Monitor for volume depletion, especially with concurrent furosemide. Consider reducing furosemide if patient becomes volume depleted.",
             {
+                tool_name: "Dosing Calculator",
+                tool_parameters: {
+                    drug: "dapagliflozin",
+                    eGFR: 35,
+                    weight: 85,
+                    age: 78,
+                },
                 tool_response: {
                     recommended_dose: "10mg daily",
                     adjustments_needed: "none",
@@ -678,7 +727,9 @@ export const clinical_case = {
             "pharmacy_agent",
             MessageType.AGENT,
             "Medication optimization: current regimen lacks SGLT2 inhibitor and MRA. For ARNI transition, stop lisinopril for 36 hours before initiating sacubitril-valsartan (e.g., 24/26 mg BID, titrate as tolerated). Monitor BP and potassium during up-titration. <cite>evid_004</cite> <cite>evid_006</cite> <cite>evid_003</cite>",
-            {},
+            {
+                agent_name: "Pharmacy Agent",
+            },
             "planning",
         ),
 
@@ -704,6 +755,12 @@ export const clinical_case = {
             MessageType.TOOL,
             "MRA check: not contraindicated at eGFR 35; consider eplerenone or defer MRA until after ARNI optimization and potassium monitoring given hyperkalemia risk.",
             {
+                tool_name: "Contraindication Checker",
+                tool_parameters: {
+                    drug: "spironolactone",
+                    conditions: ["CKD_stage_3a", "hyperkalemia_risk"],
+                    current_meds: ["lisinopril", "dapagliflozin"],
+                },
                 tool_response: {
                     contraindicated: false,
                     risk_level: "moderate",
@@ -718,7 +775,9 @@ export const clinical_case = {
             "cardiology_agent",
             MessageType.AGENT,
             "Final recommendation before summary: add dapagliflozin 10 mg daily; switch from lisinopril to sacubitril-valsartan after 36-hour washout; optimize metoprolol toward target dose; defer MRA until potassium consistently <5.0 mEq/L; close follow-up in ~2 weeks. <cite>evid_004</cite> <cite>evid_005</cite> <cite>evid_006</cite> <cite>evid_009</cite> <cite>evid_002</cite> <cite>evid_007</cite>",
-            {},
+            {
+                agent_name: "Cardiology Agent",
+            },
             "planning",
         ),
 
@@ -741,12 +800,14 @@ export const clinical_case = {
             MessageType.AGENT,
             "Best approach to optimize therapy:\n" +
                 "1) Start an SGLT2 inhibitor now (dapagliflozin 10 mg daily; renal function adequate at eGFR 35). <cite>evid_005</cite> <cite>evid_009</cite> <cite>evid_007</cite>\n" +
-                "2) Transition from lisinopril to sacubitril–valsartan after a 36-hour washout; begin 24/26 mg BID and uptitrate as tolerated. <cite>evid_004</cite> <cite>evid_006</cite>\n" +
+                "2) Transition from lisinopril to sacubitril-valsartan after a 36-hour washout; begin 24/26 mg BID and uptitrate as tolerated. <cite>evid_004</cite> <cite>evid_006</cite>\n" +
                 "3) Up-titrate metoprolol succinate toward target as tolerated (monitor HR/BP). <cite>evid_004</cite>\n" +
                 "4) Consider adding an MRA once potassium is consistently <5.0 mEq/L and renal function remains stable; choose eplerenone if hyperkalemia risk is a concern. <cite>evid_004</cite> <cite>evid_007</cite>\n" +
                 "5) Monitor volume status and electrolytes closely (loop diuretic adjustment may be needed). <cite>evid_007</cite>\n" +
                 "This plan aligns with guideline-directed quadruple therapy for HFrEF and is supported by major trials in similar populations.",
-            {},
+            {
+                agent_name: "Review Agent",
+            },
             "final",
         ),
     ] as Message[],

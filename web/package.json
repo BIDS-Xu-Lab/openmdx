@@ -17,6 +17,7 @@
     "@primeuix/themes": "^1.2.5",
     "@primevue/auto-import-resolver": "^4.4.1",
     "@supabase/supabase-js": "^2.75.0",
+    "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.1.14",
     "@vue-flow/core": "^1.47.0",
     "dayjs": "^1.11.18",

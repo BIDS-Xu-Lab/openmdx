@@ -34,7 +34,7 @@ const handleClick = () => {
 </script>
 
 <template>
-<span class="cite-tag cursor-pointer text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-600" 
+<span class="cite-tag text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-600" 
     @click="handleClick"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave">
@@ -51,6 +51,7 @@ const handleClick = () => {
     border-radius: 0.25rem;
     font-size: 0.875rem;
     margin-right: 0.25rem;
-    padding: 0 0.25rem;
+    padding: 0 0.75rem;
+    cursor: pointer;
 }
 </style>

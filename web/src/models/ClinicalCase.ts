@@ -62,6 +62,7 @@ export const MessageType = {
   AGENT: "AGENT",
   TOOL: "TOOL",
   SYSTEM: "SYSTEM",
+  PLACEHOLDER: "PLACEHOLDER",
 } as const;
 export type MessageType = typeof MessageType[keyof typeof MessageType];
 
@@ -90,6 +91,16 @@ export interface Message {
   stage: string | "final";  // the stage of the message, e.g., "final", "intermediate", "thinking", "planning", etc.
   created_at: string;
 }
+
+export const MessageStage = {
+  FINAL: "final",
+  INTERMEDIATE: "intermediate",
+  THINKING: "thinking",
+  PLANNING: "planning",
+  TOOLING: "tooling",
+  SUMMARIZING: "summarizing",
+} as const;
+export type MessageStage = typeof MessageStage[keyof typeof MessageStage];
 
 /**
  * Create an empty message with the given sender, type, text, and payload.

@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia';
 import type { ClinicalCase, EvidenceSnippet, Message } from '../models/ClinicalCase';
+import { MessageType, MessageStage, createEmptyMessage } from '../models/ClinicalCase';
 
 export const useCaseStore = defineStore('case', {
     state: () => ({
         clinical_case: null as ClinicalCase | null,
         current_evidence_tab: null as string | null,
-        show_thinking: false,
+        show_thinking: true,
         chat_rating: 0,
         input_text: '',
         is_recording: false,
@@ -26,7 +27,51 @@ export const useCaseStore = defineStore('case', {
             });
             return dict;
         },
-        messages: (state) => state.clinical_case?.messages || [],
+
+        rendered_messages: (state) => {
+            if (state.show_thinking) {
+                return state.clinical_case?.messages || [];
+
+            } else {
+                // combine non-user and non-final messages as a placeholder
+                const _messages = [];
+                let count_intermediate = 0;
+                let add_placeholder = false;
+                let add_message = false;
+                for (const message of state.clinical_case?.messages || []) {
+                    if (message.message_type == MessageType.USER) {
+                        add_message = true;
+                        add_placeholder = count_intermediate > 0? true : false;
+
+                    } else if (message.stage == MessageStage.FINAL) {
+                        add_message = true;
+                        add_placeholder = count_intermediate > 0? true : false;
+
+                    } else {
+                        count_intermediate++;
+                        add_message = false;
+                    }
+
+                    if (add_placeholder) {
+                        let msg = createEmptyMessage(
+                            `placeholder_${count_intermediate}`,
+                            MessageType.PLACEHOLDER,
+                            `Think process of ${count_intermediate} steps ...`,
+                            {},
+                            MessageStage.THINKING
+                        );
+                        _messages.push(msg);
+                        add_placeholder = false;
+                        count_intermediate = 0;
+                    }
+                    if (add_message) {
+                        _messages.push(message);
+                    }
+                }
+                return _messages;
+            }
+        },
+
         evidence_snippets: (state) => state.clinical_case?.evidence_snippets || [],
         current_evidence: (state) => {
             for (const snippet of state.clinical_case?.evidence_snippets || []) {
@@ -60,19 +105,28 @@ export const useCaseStore = defineStore('case', {
             this.clearHideHoveredSnippetTimeout();
             this.hovered_snippet_id = snippet_id;
             if (this.cite_popup_ref) {
+                if ((this.cite_popup_ref as any).visible) {
+                    (this.cite_popup_ref as any).hide();
+                }
                 (this.cite_popup_ref as any).show(event);
             }
         },
 
-        hideHoveredSnippet() {
+        hideHoveredSnippet(right_now: boolean = false) {
             if (this.hide_overlay_panel_timeout) {
                 clearTimeout(this.hide_overlay_panel_timeout);
             }
-            this.hide_overlay_panel_timeout = setTimeout(() => {
+            if (right_now) {
                 if (this.cite_popup_ref) {
                     (this.cite_popup_ref as any).hide();
                 }
-            }, 500);
+            } else {
+                this.hide_overlay_panel_timeout = setTimeout(() => {
+                    if (this.cite_popup_ref) {
+                        (this.cite_popup_ref as any).hide();
+                    }
+                }, 500);
+            }
         },
 
         clearHideHoveredSnippetTimeout() {
