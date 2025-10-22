@@ -429,7 +429,7 @@ export const clinical_case = {
                 "Chest X-ray findings: Cardiomegaly with cardiothoracic ratio of 0.65, bilateral pleural effusions (small to moderate), pulmonary vascular congestion, no acute pulmonary edema. No pneumothorax or pneumonia. Bony structures unremarkable.",
             source_id: "cxr_001",
             source_type: "diagnostic_test",
-            source_citation: "Chest X-ray Report - Dr. Jennifer Liu, MD",
+            source_citation: "Chest X-ray Report - Dr. X, MD",
             created_at: "2024-01-15T09:45:00Z",
         },
         {
@@ -461,7 +461,7 @@ export const clinical_case = {
         createEmptyMessage(
             "user_001",
             MessageType.USER,
-            "I have a 78-year-old male patient with heart failure, diabetes, and kidney disease who presented with acute decompensation. His EF is 25% and he's currently on lisinopril, metoprolol, and furosemide. What's the best approach for optimizing his heart failure therapy?",
+            "I have a 78-year-old male patient with heart failure, diabetes, and kidney disease who presented with acute decompensation. His EF is 25% and he's currently on lisinopril, metoprolol, and furosemide. \n\nBP 145/90, HR 110 irregular, JVD elevated, bilateral rales, S3 gallop, 2+ pitting edema bilaterally. Labs: BNP 850 pg/mL, creatinine 1.8 mg/dL, eGFR 35 mL/min/1.73m², sodium 138 mEq/L, potassium 4.2 mEq/L.\n\nLeft VEF 25%, severe global hypokinesis, MMR, estimated pasp 45 mmHg, LA 45 mL/m².\n\nWhat's the best approach for optimizing his heart failure therapy?",
         ),
 
         // system + tools (unchanged)

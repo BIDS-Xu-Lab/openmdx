@@ -186,7 +186,7 @@ onMounted(() => {
             </div>
 
             <!-- Chat Body -->
-            <div class="chat-body flex-1 overflow-y-auto p-4 space-y-4">
+            <div class="chat-body flex-1 overflow-y-auto p-4 ">
                 <template v-for="message in case_store.rendered_messages" :key="message.message_id">
                     <div v-if="['USER'].includes(message.message_type)"
                         class="message-item user-message ">
@@ -207,11 +207,11 @@ onMounted(() => {
                         </div>
                     </div>
 
-                    <div v-else-if="['AGENT'].includes(message.message_type) && case_store.show_thinking"
+                    <div v-else-if="['AGENT'].includes(message.message_type) && (case_store.show_thinking && message.stage !== 'final')"
                         class="message-item agent-message " >
-                        <div class="message-header flex justify-between items-center gap-2">
+                        <div class="message-header message-header-on-timeline p-2 flex justify-between items-center gap-2">
                             <div class="flex items-center gap-2">
-                                <span class="font-medium text-sm">
+                                <span class="role-icon font-medium text-sm">
                                     <font-awesome-icon icon="fa-solid fa-robot" />
                                 </span>
                                 <span>
@@ -232,7 +232,7 @@ onMounted(() => {
                             </div>
                         </div>
                         
-                        <div class="message-content prose max-w-none text-base/6"
+                        <div class="message-content p-2 prose max-w-none text-base/6 text-sm"
                             v-html="renderMessageText(message.text || '')" 
                             v-cite>
                         </div>
@@ -260,7 +260,7 @@ onMounted(() => {
                             </div>
                         </div>
                         
-                        <div class="message-content prose max-w-none text-base/5 p-4"
+                        <div class="message-content prose max-w-none text-base/6 p-4"
                             v-html="renderMessageText(message.text || '')" 
                             v-cite>
                         </div>
@@ -277,9 +277,9 @@ onMounted(() => {
 
                     <div v-else-if="['TOOL'].includes(message.message_type) && (message.stage == 'final' || case_store.show_thinking)"
                         class="message-item tool-message " >
-                        <div class="message-header p-2 flex justify-between items-center gap-2">
+                        <div class="message-header message-header-on-timeline p-2 flex justify-between items-center gap-2">
                             <div class="flex items-center gap-2">
-                                <span class="font-medium text-sm">
+                                <span class="role-icon font-medium text-sm">
                                     <font-awesome-icon icon="fa-solid fa-screwdriver-wrench" />
                                 </span>
                                 <span class="italic">
@@ -305,7 +305,7 @@ onMounted(() => {
                             v-cite>
                         </div>
 
-                        <div class="flex flex-row gap-2 border-t pt-2 mt-2 p-2">
+                        <div class="flex flex-row gap-2 pt-2 mt-2 p-2">
                             <div v-for="parameter_key in Object.keys(message.payload_json?.tool_parameters)" :key="parameter_key"
                                 class="flex flex-col">
                                 <span class="text-xs">
@@ -412,6 +412,13 @@ onMounted(() => {
 
                             </template>
 
+                            <template v-else-if="['clinical_guideline'].includes(snippet.source_type)">
+                                <font-awesome-icon icon="fa-solid fa-book" />
+                                <span>
+                                    Guideline
+                                </span>
+                            </template>
+
                             <template v-else>
                                 <font-awesome-icon icon="fa-regular fa-file-lines" />
 
@@ -509,10 +516,15 @@ onMounted(() => {
 }
 
 .message-item {
-    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 1rem;
 }
 .message-header {
     height: 2rem;
+}
+.message-header-on-timeline {
+    margin-left: -1.3rem;
 }
 .message-toolbar {
     display: none;
@@ -521,9 +533,18 @@ onMounted(() => {
     display: inline-block;
 }
 
-
+.role-icon {
+    background-color: var(--border-color);
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+}
 .tool-message {
-    margin-left: 2rem;
+    margin-left: 1rem;
+    border-left: 2px solid var(--border-color);
+}
+
+.agent-message {
+    margin-left: 1rem;
     border-left: 2px solid var(--border-color);
 }
 
