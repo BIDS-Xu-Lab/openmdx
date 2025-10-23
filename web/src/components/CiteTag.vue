@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { defineProps, defineEmits, ref } from 'vue';
 import { useCaseStore } from '../stores/CaseStore';
 
 const case_store = useCaseStore();

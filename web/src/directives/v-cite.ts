@@ -63,6 +63,8 @@ export const vCite = {
         // const appContext = (binding.instance as any)?.appContext;
         // unmountCites(el);
         // mountCites(el, appContext);
+        el;
+        binding;
     },
     unmounted(el: HTMLElement) {
         console.log('v-cite unmounted');

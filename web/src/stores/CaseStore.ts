@@ -185,7 +185,9 @@ export const useCaseStore = defineStore('case', {
         hasKeywordsInMessage(message: Message) {
             const keywords = this.filter_keywords;
             if (keywords.length === 0) return true;
-            return keywords.some(keyword => message.text?.includes(keyword));
+            return keywords.some(keyword => 
+                message.text?.toLowerCase().includes(keyword.toLowerCase())
+            );
         },
 
         filterRenderedMessages() {

@@ -30,7 +30,7 @@ const exportCase = (case_id: string) => {
     <div class="w-3/4 mx-auto mt-12">
         <h1 class="text-2xl font-bold">Case History</h1>
         <table class="w-full">
-            
+            <thead>
             <tr class="h-12 border-b text-left">
                 <th class="col-date">
                     Date
@@ -42,7 +42,8 @@ const exportCase = (case_id: string) => {
                     &nbsp;
                 </th>
             </tr>
-
+            </thead>
+            <tbody>
             <tr v-for="cc in cases" :key="cc.case_id"
                 class="h-12 border-b">
                 <td class="">
@@ -60,6 +61,7 @@ const exportCase = (case_id: string) => {
                         size="small" />
                 </td>
             </tr>
+            </tbody>
         </table>
     </div>
 </div>

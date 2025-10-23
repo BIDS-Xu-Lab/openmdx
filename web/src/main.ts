@@ -64,8 +64,9 @@ const user_store = useUserStore();
 // bind to window for debugging
 (window as any).store = store;
 
-// bind other stores to the store
+// @ts-expect-error: Dynamically attaching stores for debugging in dev mode
 store.case_store = case_store;
+// @ts-expect-error: Dynamically attaching stores for debugging in dev mode
 store.user_store = user_store;
 
 // bind color scheme to store
