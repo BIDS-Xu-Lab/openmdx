@@ -83,11 +83,16 @@ const handleEvidenceTabChange = (snippet_id: string) => {
 const renderMessageText = (text: string) => {
     let html = marked.parse(text);
 
+    // second, highlight the keywords in the text
+    const keywords = case_store.filter_keywords;
+    if (keywords.length > 0) {
+        for (const keyword of keywords) {
+            html = (html as string).replace(new RegExp(`(${keyword})`, 'gi'), '<span class="highlight-keyword">$1</span>');
+        }
+    }
+
     return html;
 };
-
-const keyword = ref('');
-
 
 
 const cite_popup_ref = ref();
@@ -148,12 +153,15 @@ onMounted(() => {
                     </span>
 
                     <input type="text" 
-                        v-model="keyword" 
+                        v-model="case_store.raw_filter_keywords" 
                         placeholder="Filter messages by keyword" 
                         style="padding-right: 2rem;"
                         class="p-1 border-1" />
 
-                    <Button icon="pi pi-times" size="small" class="p-button-text" text
+                    <Button icon="pi pi-times" 
+                        size="small" 
+                        class="p-button-text" text
+                        @click="case_store.raw_filter_keywords = ''"
                         style="margin-left: -2.5rem" />
                 </div>
                 <div class="flex items-center gap-2">
@@ -187,7 +195,7 @@ onMounted(() => {
 
             <!-- Chat Body -->
             <div class="chat-body flex-1 overflow-y-auto p-4 ">
-                <template v-for="message in case_store.rendered_messages" :key="message.message_id">
+                <template v-for="message in case_store.filterRenderedMessages()" :key="message.message_id">
                     <div v-if="['USER'].includes(message.message_type)"
                         class="message-item user-message ">
                         <div class="message-header flex justify-between items-center gap-2">
@@ -318,6 +326,15 @@ onMounted(() => {
                         </div>
                     </div>
                 </template>
+
+                <div v-if="case_store.filterRenderedMessages().length === 0"
+                    class="message-item user-message ">                    
+                    <div class="message-content prose max-w-none text-base/6">
+                        <p>
+                            No messages found for the given keywords in any of the processing steps. Please try other keywords or clear the filter.
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <!-- Chat Footer -->

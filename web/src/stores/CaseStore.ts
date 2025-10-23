@@ -11,6 +11,9 @@ export const useCaseStore = defineStore('case', {
         input_text: '',
         is_recording: false,
 
+        // filter rendered messages by keywords
+        raw_filter_keywords: '',
+
         // something for the hover state
         hovered_snippet_id: null as string | null,
         cite_popup_ref: null,
@@ -18,6 +21,27 @@ export const useCaseStore = defineStore('case', {
     }),
 
     getters: {
+        filter_keywords: (state) => {
+            // if several words are wrapped with quotes, treat them as a single keyword
+            const input = state.raw_filter_keywords?.trim() || "";
+            if (!input) return [];
+
+            // Match either quoted phrases or single words
+            // e.g. "heart failure" drug cancer → ["heart failure", "drug", "cancer"]
+            const regex = /"([^"]+)"|'([^']+)'|(\S+)/g;
+            const keywords: string[] = [];
+
+            let match;
+            while ((match = regex.exec(input)) !== null) {
+                // match[1] = double-quoted phrase
+                // match[2] = single-quoted phrase
+                // match[3] = unquoted word
+                const keyword = match[1] || match[2] || match[3];
+                if (keyword) keywords.push(keyword.trim());
+            }
+
+            return keywords;
+        },
         evidence_dict: (state) => {
             const dict: { [key: string]: any } = {};
             const snippets = state.clinical_case?.evidence_snippets || [];
@@ -34,7 +58,7 @@ export const useCaseStore = defineStore('case', {
 
             } else {
                 // combine non-user and non-final messages as a placeholder
-                const _messages = [];
+                const _messages: Message[] = [];
                 let count_intermediate = 0;
                 let add_placeholder = false;
                 let add_message = false;
@@ -158,8 +182,20 @@ export const useCaseStore = defineStore('case', {
             }
         },
 
+        hasKeywordsInMessage(message: Message) {
+            const keywords = this.filter_keywords;
+            if (keywords.length === 0) return true;
+            return keywords.some(keyword => message.text?.includes(keyword));
+        },
+
+        filterRenderedMessages() {
+            const messages = this.rendered_messages;
+            if (this.filter_keywords.length === 0) return messages;
+            return messages.filter(message => this.hasKeywordsInMessage(message));
+        },
+
         copyChatHistory() {
-            const messages = this.messages;
+            const messages = this.clinical_case?.messages || [];
             const chatText = messages.map(msg => {
                 const sender = msg.message_type === 'USER' ? 'User' : 
                              msg.message_type === 'AGENT' ? 'Agent' : 

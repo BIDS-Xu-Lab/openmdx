@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import type { ClinicalCase } from '../models/ClinicalCase';
 import { clinical_case } from '../models/Samples';
 
+
 export const useDataStore = defineStore('data', {
     state: () => ({
         current_page: '',
@@ -10,6 +11,10 @@ export const useDataStore = defineStore('data', {
         flag_sidebar_open: false,
 
         current_clinical_case: clinical_case as ClinicalCase,
+
+        // hold a reference to other stores
+        case_store: null,
+        user_store: null,
     }),
 
     getters: {

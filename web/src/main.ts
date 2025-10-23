@@ -10,6 +10,8 @@ import router from './router';
 import { useDataStore } from './stores/DataStore';
 import { vCite } from './directives/v-cite';
 import ToastService from 'primevue/toastservice';
+import { useCaseStore } from './stores/CaseStore';
+import { useUserStore } from './stores/UserStore';
 
 // create the app
 const app = createApp(App)
@@ -56,9 +58,15 @@ app.component('font-awesome-icon', FontAwesomeIcon)
 // Store
 ///////////////////////////////////////////////////////////
 const store = useDataStore();
+const case_store = useCaseStore();
+const user_store = useUserStore();
 
 // bind to window for debugging
 (window as any).store = store;
+
+// bind other stores to the store
+store.case_store = case_store;
+store.user_store = user_store;
 
 // bind color scheme to store
 const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');

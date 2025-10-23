@@ -23,7 +23,7 @@
 
   --footer-background-color: rgb(24, 24, 24);
   --highlight-background-color: rgb(26, 43, 48);
-
+  --highlight-color: rgb(195, 96, 56);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -41,6 +41,7 @@
 
     --footer-background-color: rgb(240, 240, 240);
     --highlight-background-color: rgb(239, 246, 255);
+    --highlight-color: rgb(216, 73, 33);
   }
 }
 
@@ -106,6 +107,13 @@ body {
 
 .prose {
   color: var(--text-color);
+}
+
+.highlight-keyword {
+  color: var(--highlight-color);
+  font-weight: bold;
+  font-style: italic;
+  text-decoration: underline;
 }
 
 /* override the tailwind colors */
