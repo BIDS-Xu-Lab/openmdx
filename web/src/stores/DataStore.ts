@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia';
 import type { ClinicalCase } from '../models/ClinicalCase';
-import { clinical_case } from '../models/Samples';
 
 
 export const useDataStore = defineStore('data', {
@@ -10,7 +9,10 @@ export const useDataStore = defineStore('data', {
 
         flag_sidebar_open: false,
 
-        current_clinical_case: clinical_case as ClinicalCase,
+        clinical_cases: [] as ClinicalCase[],
+
+        // ui
+        show_evidence_panel: true,
 
         // hold a reference to other stores
         case_store: null,
@@ -18,7 +20,6 @@ export const useDataStore = defineStore('data', {
     }),
 
     getters: {
-        c3: (state) => state.current_clinical_case,
     },
     
     actions: {
@@ -42,9 +43,5 @@ export const useDataStore = defineStore('data', {
         isDarkMode() {
             return this.color_scheme === 'dark';
         },
-
-        setClinicalCase(case_data: ClinicalCase) {
-            this.current_clinical_case = case_data;
-        }
     }
 })

@@ -29,7 +29,6 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     Splitter: typeof import('primevue/splitter')['default']
     SplitterPanel: typeof import('primevue/splitterpanel')['default']
-    Threads: typeof import('./src/components/backgrounds/Threads.vue')['default']
     ToggleSwitch: typeof import('primevue/toggleswitch')['default']
     TopMenu: typeof import('./src/components/TopMenu.vue')['default']
   }

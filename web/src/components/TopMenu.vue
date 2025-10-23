@@ -63,8 +63,9 @@ const onClickSignIn = () => {
 <MegaMenu :model="items" style="border-radius: 0; border: none; background: transparent;">
     <template #start>
     </template>
+    <!-- 
     <template #item="{ item }">
-        <!-- <a v-if="item.root" class="flex items-center cursor-pointer px-4 py-2 overflow-hidden relative font-semibold text-lg uppercase" style="border-radius: 2rem">
+        <a v-if="item.root" class="flex items-center cursor-pointer px-4 py-2 overflow-hidden relative font-semibold text-lg uppercase" style="border-radius: 2rem">
             <span>{{ item.label }}</span>
         </a>
         <a v-else-if="!item.image" class="flex items-center p-4 cursor-pointer mb-2 gap-3">
@@ -80,8 +81,9 @@ const onClickSignIn = () => {
             <img alt="megamenu-demo" :src="item.image" class="w-full" />
             <span>{{ item.subtext }}</span>
             <Button :label="item.label" variant="outlined" />
-        </div> -->
+        </div> 
     </template>
+    -->
     <template #end>
         <Button size="small" 
             @click="onClickSignIn"

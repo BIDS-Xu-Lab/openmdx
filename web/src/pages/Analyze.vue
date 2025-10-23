@@ -7,6 +7,7 @@ import { MessageType } from '../models/ClinicalCase';
 import type { Message } from '../models/ClinicalCase';
 import { marked } from 'marked';
 import { useToast } from 'primevue/usetoast';
+import { clinical_case as sample_clinical_case } from '../models/Samples';
 
 const toast = useToast();
 
@@ -15,10 +16,10 @@ import Button from 'primevue/button';
 import Textarea from 'primevue/textarea';
 
 const data_store = useDataStore();
+data_store;
 const case_store = useCaseStore();
 
 // Computed properties
-const clinical_case = computed(() => data_store.c3);
 const evidence_snippets = computed(() => case_store.evidence_snippets);
 const current_evidence = computed(() => case_store.current_evidence);
 const evidence_count = computed(() => case_store.evidence_count);
@@ -127,8 +128,8 @@ const copyMessageToClipboard = (message: Message) => {
 
 // Initialize case data
 onMounted(() => {
-    if (clinical_case.value) {
-        case_store.setClinicalCase(clinical_case.value);
+    if (case_store.clinical_case == null) {
+        case_store.setClinicalCase(sample_clinical_case);
     }
 
     case_store.cite_popup_ref = cite_popup_ref.value;
@@ -409,7 +410,9 @@ onMounted(() => {
                 <!-- Evidence Tabs (Left 1/4) -->
                 <div class="w-1/4 border-r overflow-x-hidden pl-2"
                     style="overflow-y: auto; height: calc(100svh - 3rem);">
-                    <div v-for="(snippet, index) in evidence_snippets" :key="snippet.snippet_id"
+                    <div v-for="(snippet, index) in evidence_snippets" 
+                        :key="snippet.snippet_id"
+                        :evidence-index="index"
                         class="evidence-tab p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 border-btransition-colors"
                         :class="{ 'bg-gray-100 dark:bg-gray-800 shadow-sm': snippet.snippet_id === case_store.current_evidence_tab }"
                         @click="handleEvidenceTabChange(snippet.snippet_id)">
