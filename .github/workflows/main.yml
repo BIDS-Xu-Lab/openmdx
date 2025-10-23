@@ -26,6 +26,8 @@ jobs:
         working-directory: ./web
         env:
           VITE_BASE_URL: '/openmdx/'
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
         run: npm run build
 
       - name: Upload production-ready build files
