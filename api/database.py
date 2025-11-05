@@ -1,15 +1,16 @@
 """
-Database models and connection for task step tracking.
+Database models and connection for clinical case tracking.
+Uses SQLite with JSON blobs for flexibility.
 """
 from datetime import datetime
-from sqlalchemy import create_engine, Column
-from sqlalchemy.types import Integer, String, DateTime, Text, Float, JSON
+from sqlalchemy import create_engine, Column, ForeignKey
+from sqlalchemy.types import Integer, String, DateTime, Text, JSON
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, relationship
 from contextlib import contextmanager
 
 # Create database engine
-DATABASE_URL = "sqlite:///./tasks.db"
+DATABASE_URL = "sqlite:///./clinical_cases.db"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
 # Create session maker
@@ -18,41 +19,89 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 # Create base class for models
 Base = declarative_base()
 
-class User(Base):
-    """Model for tracking a user."""
-    __tablename__ = "users"
-
-    user_id = Column(String, index=True, nullable=False)
-    username = Column(String, nullable=False)
-    email = Column(String, nullable=False)
-    created_at = Column(DateTime, nullable=False)
-    updated_at = Column(DateTime, nullable=False)
 
 class ClinicalCase(Base):
     """Model for tracking a clinical case."""
-    __tablename__ = "clinical_cases"
+    __tablename__ = "cases"
 
-    case_id = Column(String, index=True, nullable=False)
-    status = Column(String, nullable=False)  # pending, running, completed, failed
-    title = Column(String, nullable=True)
-    created_at = Column(DateTime, nullable=False)
-    updated_at = Column(DateTime, nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    case_id = Column(String, unique=True, index=True, nullable=False)
+    status = Column(String, nullable=False)  # CREATED, PROCESSING, COMPLETED, ERROR
+    data_json = Column(JSON, nullable=False)  # Contains: title, etc.
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    messages = relationship("Message", back_populates="case", cascade="all, delete-orphan")
+    evidence_snippets = relationship("EvidenceSnippet", back_populates="case", cascade="all, delete-orphan")
+
+    def to_dict(self):
+        return {
+            "case_id": self.case_id,
+            "status": self.status,
+            "title": self.data_json.get("title"),
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+        }
+
 
 class Message(Base):
-    """Model for tracking a message."""
+    """Model for tracking a message in a case."""
     __tablename__ = "messages"
 
-    message_id = Column(String, index=True, nullable=False)
-    user_id = Column(String, nullable=False)
-    
-    from_id = Column(String, nullable=False)
-    message_type = Column(String, nullable=False)
-    text = Column(Text, nullable=False)
-    payload_json = Column(JSON, nullable=True)
-    stage = Column(String, nullable=False)
-    created_at = Column(DateTime, nullable=False)
-    updated_at = Column(DateTime, nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    message_id = Column(String, unique=True, index=True, nullable=False)
+    case_id = Column(String, ForeignKey("cases.case_id"), nullable=False, index=True)
+    message_data_json = Column(JSON, nullable=False)  # Contains: from_id, message_type, text, payload_json, stage
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
+    # Relationships
+    case = relationship("ClinicalCase", back_populates="messages")
+
+    def to_dict(self):
+        return {
+            "message_id": self.message_id,
+            "case_id": self.case_id,
+            "from_id": self.message_data_json.get("from_id"),
+            "message_type": self.message_data_json.get("message_type"),
+            "text": self.message_data_json.get("text"),
+            "payload_json": self.message_data_json.get("payload_json"),
+            "stage": self.message_data_json.get("stage"),
+            "created_at": self.created_at.isoformat(),
+        }
+
+
+class EvidenceSnippet(Base):
+    """Model for tracking evidence snippets in a case."""
+    __tablename__ = "evidence_snippets"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    snippet_id = Column(String, unique=True, index=True, nullable=False)
+    case_id = Column(String, ForeignKey("cases.case_id"), nullable=False, index=True)
+    snippet_data_json = Column(JSON, nullable=False)  # Contains: text, source_id, source_type, source_url, source_citation, index
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+    # Relationships
+    case = relationship("ClinicalCase", back_populates="evidence_snippets")
+
+    def to_dict(self):
+        return {
+            "snippet_id": self.snippet_id,
+            "case_id": self.case_id,
+            "index": self.snippet_data_json.get("index", 0),
+            "text": self.snippet_data_json.get("text"),
+            "source_id": self.snippet_data_json.get("source_id"),
+            "source_type": self.snippet_data_json.get("source_type"),
+            "source_url": self.snippet_data_json.get("source_url"),
+            "source_citation": self.snippet_data_json.get("source_citation"),
+            "created_at": self.created_at.isoformat(),
+        }
+
+
+@contextmanager
+def get_db():
+    """Get database session context manager."""
+    db = SessionLocal()
     try:
         yield db
         db.commit()
@@ -63,78 +112,94 @@ class Message(Base):
         db.close()
 
 
-def create_task_steps(job_id: str, step_names: list[str]):
-    """Create initial task step records for a job."""
+def init_db():
+    """Initialize database tables."""
+    Base.metadata.create_all(bind=engine)
+
+
+def create_case(case_id: str, title: str = None) -> ClinicalCase:
+    """Create a new clinical case."""
     with get_db() as db:
-        for idx, step_name in enumerate(step_names, 1):
-            step = TaskStep(
-                job_id=job_id,
-                step_number=idx,
-                step_name=step_name,
-                status="pending"
-            )
-            db.add(step)
+        case = ClinicalCase(
+            case_id=case_id,
+            status="CREATED",
+            data_json={"title": title}
+        )
+        db.add(case)
+        db.flush()
+        db.refresh(case)
+        return case
 
 
-def update_step_status(job_id: str, step_number: int, status: str,
-                       output: str = None, error: str = None):
-    """Update the status of a task step."""
+def get_case(case_id: str) -> ClinicalCase:
+    """Get a clinical case by ID."""
     with get_db() as db:
-        step = db.query(TaskStep).filter(
-            TaskStep.job_id == job_id,
-            TaskStep.step_number == step_number
-        ).first()
-
-        if step:
-            step.status = status
-            step.updated_at = datetime.utcnow()
-
-            if status == "running" and not step.started_at:
-                step.started_at = datetime.utcnow()
-
-            if status in ["completed", "failed"]:
-                step.completed_at = datetime.utcnow()
-                if step.started_at:
-                    step.duration = (step.completed_at - step.started_at).total_seconds()
-
-            if output:
-                step.output = output
-
-            if error:
-                step.error = error
+        case = db.query(ClinicalCase).filter(ClinicalCase.case_id == case_id).first()
+        return case
 
 
-def get_task_steps(job_id: str) -> list[dict]:
-    """Get all steps for a specific job."""
+def update_case_status(case_id: str, status: str):
+    """Update the status of a case."""
     with get_db() as db:
-        steps = db.query(TaskStep).filter(
-            TaskStep.job_id == job_id
-        ).order_by(TaskStep.step_number).all()
+        case = db.query(ClinicalCase).filter(ClinicalCase.case_id == case_id).first()
+        if case:
+            case.status = status
+            case.updated_at = datetime.utcnow()
 
-        return [step.to_dict() for step in steps]
 
-
-def get_task_progress(job_id: str) -> dict:
-    """Get progress summary for a task."""
+def add_message(case_id: str, message_id: str, message_data: dict):
+    """Add a message to a case."""
     with get_db() as db:
-        steps = db.query(TaskStep).filter(TaskStep.job_id == job_id).all()
+        message = Message(
+            message_id=message_id,
+            case_id=case_id,
+            message_data_json=message_data
+        )
+        db.add(message)
 
-        if not steps:
+
+def add_evidence_snippet(case_id: str, snippet_id: str, snippet_data: dict):
+    """Add an evidence snippet to a case."""
+    with get_db() as db:
+        snippet = EvidenceSnippet(
+            snippet_id=snippet_id,
+            case_id=case_id,
+            snippet_data_json=snippet_data
+        )
+        db.add(snippet)
+
+
+def get_case_full(case_id: str) -> dict:
+    """Get full case data including messages and evidence snippets."""
+    with get_db() as db:
+        case = db.query(ClinicalCase).filter(ClinicalCase.case_id == case_id).first()
+        if not case:
             return None
 
-        total_steps = len(steps)
-        completed_steps = sum(1 for s in steps if s.status == "completed")
-        failed_steps = sum(1 for s in steps if s.status == "failed")
-        running_steps = sum(1 for s in steps if s.status == "running")
+        messages = db.query(Message).filter(Message.case_id == case_id).order_by(Message.created_at).all()
+        snippets = db.query(EvidenceSnippet).filter(EvidenceSnippet.case_id == case_id).order_by(EvidenceSnippet.created_at).all()
 
         return {
-            "job_id": job_id,
-            "total_steps": total_steps,
-            "completed_steps": completed_steps,
-            "failed_steps": failed_steps,
-            "running_steps": running_steps,
-            "progress_percentage": (completed_steps / total_steps * 100) if total_steps > 0 else 0,
-            "status": "completed" if completed_steps == total_steps else
-                     "failed" if failed_steps > 0 else
-                     "running" if running_steps > 0 else "pending"
+            "case_id": case.case_id,
+            "status": case.status,
+            "title": case.data_json.get("title"),
+            "messages": [msg.to_dict() for msg in messages],
+            "evidence_snippets": [snip.to_dict() for snip in snippets],
+            "created_at": case.created_at.isoformat(),
+            "updated_at": case.updated_at.isoformat(),
         }
+
+
+def get_new_messages(case_id: str, since_message_id: str = None) -> list:
+    """Get new messages for a case since a given message ID."""
+    with get_db() as db:
+        query = db.query(Message).filter(Message.case_id == case_id)
+
+        if since_message_id:
+            # Get messages created after the specified message
+            since_msg = db.query(Message).filter(Message.message_id == since_message_id).first()
+            if since_msg:
+                query = query.filter(Message.created_at > since_msg.created_at)
+
+        messages = query.order_by(Message.created_at).all()
+        return [msg.to_dict() for msg in messages]

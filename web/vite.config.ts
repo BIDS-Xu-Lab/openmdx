@@ -54,6 +54,7 @@ export default () => {
 
     build: {
       outDir: 'dist',
+      target: ['es2022', 'chrome89', 'firefox89', 'safari15'],
     },
   })
 }
