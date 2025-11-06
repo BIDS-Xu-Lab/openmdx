@@ -14,6 +14,7 @@ dependencies = [
     "rq>=2.6.0",
     "smolagents[toolkit]>=1.22.0",
     "sqlalchemy>=2.0.44",
+    "sqlmodel>=0.0.27",
     "sse-starlette>=3.0.2",
     "uvicorn>=0.38.0",
 ]

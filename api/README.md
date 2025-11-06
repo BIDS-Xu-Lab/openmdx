@@ -4,18 +4,17 @@ A minimal chat system with streaming support for clinical case analysis.
 
 ## Architecture
 
-- **Database**: SQLite with JSON blobs for flexibility
-- **API Server**: Flask with SSE (Server-Sent Events) for streaming
+- **Database**: SQLite with SQLModel (SQLAlchemy + Pydantic) for type-safe models
+- **API Server**: FastAPI with SSE (Server-Sent Events) for streaming
 - **Job Queue**: Python RQ with Redis backend
 - **Agent**: Mockup agent that simulates clinical reasoning
 
 ## Components
 
-- `database.py` - SQLite database models and functions
-- `server.py` - Flask API server with endpoints
-- `worker.py` - RQ worker for processing cases
+- `database.py` - SQLModel database models and functions
+- `server.py` - FastAPI server with endpoints
+- `worker.py` - RQ worker that listens to queue and processes cases
 - `mockup_agent.py` - Simulated agent that generates responses
-- `start_worker.py` - Helper script to start the worker
 
 ## Setup
 
@@ -39,11 +38,33 @@ redis-server
 
 ### 3. Start the Worker
 
+The worker listens to the Redis queue and processes cases automatically.
+
 In one terminal:
 
 ```bash
 cd api
-python start_worker.py
+python worker.py
+```
+
+You should see:
+```
+============================================================
+Clinical Case Worker
+============================================================
+
+[Init] Initializing database...
+[Init] Database initialized successfully
+
+[Redis] Connecting to Redis (localhost:6379)...
+[Redis] Connected successfully
+
+[Queue] Listening to queue: 'clinical_cases'
+[Queue] Current jobs in queue: 0
+
+[Worker] Starting RQ worker...
+[Worker] Press Ctrl+C to stop
+============================================================
 ```
 
 ### 4. Start the API Server
@@ -55,7 +76,11 @@ cd api
 python server.py
 ```
 
-The server will run on `http://localhost:5000`
+The server will run on `http://localhost:5000` (or the port configured in server.py)
+
+FastAPI provides automatic interactive API documentation:
+- Swagger UI: `http://localhost:5000/docs`
+- ReDoc: `http://localhost:5000/redoc`
 
 ## API Endpoints
 
@@ -264,12 +289,17 @@ redis-cli ping
 
 Check worker is running:
 ```bash
-python start_worker.py
+python worker.py
 ```
 
-Check job queue:
+Check job queue status:
 ```bash
 rq info --url redis://localhost:6379
+```
+
+Test worker directly (bypass queue):
+```bash
+python worker.py test test-case-123 "What is the treatment for diabetes?"
 ```
 
 ### Database Issues

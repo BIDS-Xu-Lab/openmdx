@@ -316,5 +316,4 @@ conf/dev/pgdata/*
 settings.toml
 
 .DS_Store
-bike-logs-api/
-bike-pgdata/
+*.db

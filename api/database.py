@@ -1,205 +1,217 @@
 """
 Database models and connection for clinical case tracking.
-Uses SQLite with JSON blobs for flexibility.
+Uses SQLModel (SQLAlchemy + Pydantic) with SQLite.
 """
 from datetime import datetime
-from sqlalchemy import create_engine, Column, ForeignKey
-from sqlalchemy.types import Integer, String, DateTime, Text, JSON
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from typing import Optional, Annotated, Any
+from sqlalchemy import Column, JSON
+from sqlmodel import SQLModel, Field, Relationship, create_engine, Session, select
 from contextlib import contextmanager
+from fastapi import Depends
 
 # Create database engine
 DATABASE_URL = "sqlite:///./clinical_cases.db"
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-
-# Create session maker
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Create base class for models
-Base = declarative_base()
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False}, echo=False)
 
 
-class ClinicalCase(Base):
+class ClinicalCase(SQLModel, table=True):
     """Model for tracking a clinical case."""
     __tablename__ = "cases"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    case_id = Column(String, unique=True, index=True, nullable=False)
-    status = Column(String, nullable=False)  # CREATED, PROCESSING, COMPLETED, ERROR
-    data_json = Column(JSON, nullable=False)  # Contains: title, etc.
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    id: Optional[int] = Field(default=None, primary_key=True)
+    case_id: str = Field(unique=True, index=True)
+    status: str = Field(default="CREATED")  # CREATED, PROCESSING, COMPLETED, ERROR
+    data_json: dict = Field(default_factory=dict, sa_column=Column(JSON))  # Contains: title, etc.
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
 
     # Relationships
-    messages = relationship("Message", back_populates="case", cascade="all, delete-orphan")
-    evidence_snippets = relationship("EvidenceSnippet", back_populates="case", cascade="all, delete-orphan")
+    messages: list["Message"] = Relationship(back_populates="case", cascade_delete=True)
+    evidence_snippets: list["EvidenceSnippet"] = Relationship(back_populates="case", cascade_delete=True)
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         return {
             "case_id": self.case_id,
             "status": self.status,
-            "title": self.data_json.get("title"),
+            "title": self.data_json.get("title") if isinstance(self.data_json, dict) else None,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
 
 
-class Message(Base):
+class Message(SQLModel, table=True):
     """Model for tracking a message in a case."""
     __tablename__ = "messages"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    message_id = Column(String, unique=True, index=True, nullable=False)
-    case_id = Column(String, ForeignKey("cases.case_id"), nullable=False, index=True)
-    message_data_json = Column(JSON, nullable=False)  # Contains: from_id, message_type, text, payload_json, stage
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    id: Optional[int] = Field(default=None, primary_key=True)
+    message_id: str = Field(unique=True, index=True)
+    case_id: str = Field(foreign_key="cases.case_id", index=True)
+    message_data_json: dict = Field(default_factory=dict, sa_column=Column(JSON))  # Contains: from_id, message_type, text, payload_json, stage
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
     # Relationships
-    case = relationship("ClinicalCase", back_populates="messages")
+    case: Optional[ClinicalCase] = Relationship(back_populates="messages")
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         return {
             "message_id": self.message_id,
             "case_id": self.case_id,
-            "from_id": self.message_data_json.get("from_id"),
-            "message_type": self.message_data_json.get("message_type"),
-            "text": self.message_data_json.get("text"),
-            "payload_json": self.message_data_json.get("payload_json"),
-            "stage": self.message_data_json.get("stage"),
+            "from_id": self.message_data_json.get("from_id") if isinstance(self.message_data_json, dict) else None,
+            "message_type": self.message_data_json.get("message_type") if isinstance(self.message_data_json, dict) else None,
+            "text": self.message_data_json.get("text") if isinstance(self.message_data_json, dict) else None,
+            "payload_json": self.message_data_json.get("payload_json") if isinstance(self.message_data_json, dict) else None,
+            "stage": self.message_data_json.get("stage") if isinstance(self.message_data_json, dict) else None,
             "created_at": self.created_at.isoformat(),
         }
 
 
-class EvidenceSnippet(Base):
+class EvidenceSnippet(SQLModel, table=True):
     """Model for tracking evidence snippets in a case."""
     __tablename__ = "evidence_snippets"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    snippet_id = Column(String, unique=True, index=True, nullable=False)
-    case_id = Column(String, ForeignKey("cases.case_id"), nullable=False, index=True)
-    snippet_data_json = Column(JSON, nullable=False)  # Contains: text, source_id, source_type, source_url, source_citation, index
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    id: Optional[int] = Field(default=None, primary_key=True)
+    snippet_id: str = Field(unique=True, index=True)
+    case_id: str = Field(foreign_key="cases.case_id", index=True)
+    snippet_data_json: dict = Field(default_factory=dict, sa_column=Column(JSON))  # Contains: text, source_id, source_type, source_url, source_citation, index
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
     # Relationships
-    case = relationship("ClinicalCase", back_populates="evidence_snippets")
+    case: Optional[ClinicalCase] = Relationship(back_populates="evidence_snippets")
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         return {
             "snippet_id": self.snippet_id,
             "case_id": self.case_id,
-            "index": self.snippet_data_json.get("index", 0),
-            "text": self.snippet_data_json.get("text"),
-            "source_id": self.snippet_data_json.get("source_id"),
-            "source_type": self.snippet_data_json.get("source_type"),
-            "source_url": self.snippet_data_json.get("source_url"),
-            "source_citation": self.snippet_data_json.get("source_citation"),
+            "index": self.snippet_data_json.get("index", 0) if isinstance(self.snippet_data_json, dict) else 0,
+            "text": self.snippet_data_json.get("text") if isinstance(self.snippet_data_json, dict) else None,
+            "source_id": self.snippet_data_json.get("source_id") if isinstance(self.snippet_data_json, dict) else None,
+            "source_type": self.snippet_data_json.get("source_type") if isinstance(self.snippet_data_json, dict) else None,
+            "source_url": self.snippet_data_json.get("source_url") if isinstance(self.snippet_data_json, dict) else None,
+            "source_citation": self.snippet_data_json.get("source_citation") if isinstance(self.snippet_data_json, dict) else None,
             "created_at": self.created_at.isoformat(),
         }
-
-
-@contextmanager
-def get_db():
-    """Get database session context manager."""
-    db = SessionLocal()
-    try:
-        yield db
-        db.commit()
-    except Exception:
-        db.rollback()
-        raise
-    finally:
-        db.close()
 
 
 def init_db():
     """Initialize database tables."""
-    Base.metadata.create_all(bind=engine)
+    SQLModel.metadata.create_all(engine, checkfirst=True)
 
 
-def create_case(case_id: str, title: str = None) -> ClinicalCase:
+def create_case(db: Session, case_id: str, title: str = None) -> ClinicalCase:
     """Create a new clinical case."""
-    with get_db() as db:
-        case = ClinicalCase(
-            case_id=case_id,
-            status="CREATED",
-            data_json={"title": title}
-        )
-        db.add(case)
-        db.flush()
-        db.refresh(case)
-        return case
+    case = ClinicalCase(
+        case_id=case_id,
+        status="CREATED",
+        data_json={"title": title}
+    )
+    db.add(case)
+    db.commit()
+    db.refresh(case)
+    # Make a copy of the data to avoid detached instance issues
+    case_dict = {
+        "case_id": case.case_id,
+        "status": case.status,
+        "data_json": case.data_json,
+        "created_at": case.created_at,
+        "updated_at": case.updated_at,
+        "id": case.id
+    }
+    db.expunge(case)
+    return case
 
 
-def get_case(case_id: str) -> ClinicalCase:
+def get_case(db: Session, case_id: str) -> Optional[ClinicalCase]:
     """Get a clinical case by ID."""
-    with get_db() as db:
-        case = db.query(ClinicalCase).filter(ClinicalCase.case_id == case_id).first()
-        return case
+    statement = select(ClinicalCase).where(ClinicalCase.case_id == case_id)
+    case = db.exec(statement).first()
+    if case:
+        # Access attributes to load them before session closes
+        _ = case.case_id
+        _ = case.status
+        _ = case.data_json
+        _ = case.created_at
+        _ = case.updated_at
+        db.expunge(case)
+    return case
 
 
-def update_case_status(case_id: str, status: str):
+def update_case_status(db: Session, case_id: str, status: str):
     """Update the status of a case."""
-    with get_db() as db:
-        case = db.query(ClinicalCase).filter(ClinicalCase.case_id == case_id).first()
-        if case:
-            case.status = status
-            case.updated_at = datetime.utcnow()
+    statement = select(ClinicalCase).where(ClinicalCase.case_id == case_id)
+    case = db.exec(statement).first()
+    if case:
+        case.status = status
+        case.updated_at = datetime.utcnow()
+        db.add(case)
+        db.commit()
 
 
-def add_message(case_id: str, message_id: str, message_data: dict):
+def add_message(db: Session, case_id: str, message_id: str, message_data: dict):
     """Add a message to a case."""
-    with get_db() as db:
-        message = Message(
-            message_id=message_id,
-            case_id=case_id,
-            message_data_json=message_data
-        )
-        db.add(message)
+    message = Message(
+        message_id=message_id,
+        case_id=case_id,
+        message_data_json=message_data
+    )
+    db.add(message)
+    db.commit()
 
 
-def add_evidence_snippet(case_id: str, snippet_id: str, snippet_data: dict):
+def add_evidence_snippet(db: Session, case_id: str, snippet_id: str, snippet_data: dict):
     """Add an evidence snippet to a case."""
-    with get_db() as db:
-        snippet = EvidenceSnippet(
-            snippet_id=snippet_id,
-            case_id=case_id,
-            snippet_data_json=snippet_data
-        )
-        db.add(snippet)
+    snippet = EvidenceSnippet(
+        snippet_id=snippet_id,
+        case_id=case_id,
+        snippet_data_json=snippet_data
+    )
+    db.add(snippet)
+    db.commit()
 
 
-def get_case_full(case_id: str) -> dict:
+def get_case_full(db: Session, case_id: str) -> Optional[dict]:
     """Get full case data including messages and evidence snippets."""
-    with get_db() as db:
-        case = db.query(ClinicalCase).filter(ClinicalCase.case_id == case_id).first()
-        if not case:
-            return None
+    statement = select(ClinicalCase).where(ClinicalCase.case_id == case_id)
+    case = db.exec(statement).first()
+    if not case:
+        return None
 
-        messages = db.query(Message).filter(Message.case_id == case_id).order_by(Message.created_at).all()
-        snippets = db.query(EvidenceSnippet).filter(EvidenceSnippet.case_id == case_id).order_by(EvidenceSnippet.created_at).all()
+    # Get messages
+    messages_statement = select(Message).where(Message.case_id == case_id).order_by(Message.created_at)
+    messages = db.exec(messages_statement).all()
 
-        return {
-            "case_id": case.case_id,
-            "status": case.status,
-            "title": case.data_json.get("title"),
-            "messages": [msg.to_dict() for msg in messages],
-            "evidence_snippets": [snip.to_dict() for snip in snippets],
-            "created_at": case.created_at.isoformat(),
-            "updated_at": case.updated_at.isoformat(),
-        }
+    # Get snippets
+    snippets_statement = select(EvidenceSnippet).where(EvidenceSnippet.case_id == case_id).order_by(EvidenceSnippet.created_at)
+    snippets = db.exec(snippets_statement).all()
+
+    return {
+        "case_id": case.case_id,
+        "status": case.status,
+        "title": case.data_json.get("title") if isinstance(case.data_json, dict) else None,
+        "messages": [msg.to_dict() for msg in messages],
+        "evidence_snippets": [snip.to_dict() for snip in snippets],
+        "created_at": case.created_at.isoformat(),
+        "updated_at": case.updated_at.isoformat(),
+    }
 
 
-def get_new_messages(case_id: str, since_message_id: str = None) -> list:
+def get_new_messages(db: Session, case_id: str, since_message_id: str = None) -> list:
     """Get new messages for a case since a given message ID."""
-    with get_db() as db:
-        query = db.query(Message).filter(Message.case_id == case_id)
+    statement = select(Message).where(Message.case_id == case_id)
 
-        if since_message_id:
-            # Get messages created after the specified message
-            since_msg = db.query(Message).filter(Message.message_id == since_message_id).first()
-            if since_msg:
-                query = query.filter(Message.created_at > since_msg.created_at)
+    if since_message_id:
+        # Get messages created after the specified message
+        since_statement = select(Message).where(Message.message_id == since_message_id)
+        since_msg = db.exec(since_statement).first()
+        if since_msg:
+            statement = statement.where(Message.created_at > since_msg.created_at)
 
-        messages = query.order_by(Message.created_at).all()
-        return [msg.to_dict() for msg in messages]
+    statement = statement.order_by(Message.created_at)
+    messages = db.exec(statement).all()
+    return [msg.to_dict() for msg in messages]
+
+
+def get_cases(db: Session, limit: int = 50) -> list[ClinicalCase]:
+    """Get a list of cases ordered by creation time."""
+    statement = select(ClinicalCase).order_by(ClinicalCase.created_at.desc()).limit(limit)
+    cases = db.exec(statement).all()
+    return cases
