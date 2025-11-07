@@ -349,14 +349,13 @@ export const questions = [
 export const clinical_case = {
     case_id: "case_heart_failure_2024_001",
     status: ClinicalCaseStatus.COMPLETED,
-    title:
-        "Complex Heart Failure with Reduced Ejection Fraction in Elderly Patient with Multiple Comorbidities",
+    title: "Complex Heart Failure with Reduced Ejection Fraction in Elderly Patient with Multiple Comorbidities",
 
     evidence_snippets: [
         {
             snippet_id: "evid_001",
             text:
-                "Patient: 78-year-old male with history of ischemic cardiomyopathy, EF 25%, diabetes mellitus type 2, chronic kidney disease stage 3a, and atrial fibrillation. Presents with 3-day history of progressive dyspnea, orthopnea, and bilateral lower extremity edema. Physical exam reveals: BP 145/90, HR 110 irregular, JVD elevated, bilateral rales, S3 gallop, 2+ pitting edema bilaterally. Labs: BNP 850 pg/mL, creatinine 1.8 mg/dL, eGFR 35 mL/min/1.73m², sodium 138 mEq/L, potassium 4.2 mEq/L.",
+                "Create aftercare instructions for a patient discharged after a minor skin surgery. Explain how to care for the wound site, signs of infection to watch for, when they can shower, and when to come back for suture removal.",
             source_id: "clinical_note_001",
             source_type: "clinical_note",
             source_citation: "Emergency Department Clinical Note - Dr. X, MD",
@@ -461,14 +460,14 @@ export const clinical_case = {
         createEmptyMessage(
             "user_001",
             MessageType.USER,
-            "I have a 78-year-old male patient with heart failure, diabetes, and kidney disease who presented with acute decompensation. His EF is 25% and he's currently on lisinopril, metoprolol, and furosemide. \n\nBP 145/90, HR 110 irregular, JVD elevated, bilateral rales, S3 gallop, 2+ pitting edema bilaterally. Labs: BNP 850 pg/mL, creatinine 1.8 mg/dL, eGFR 35 mL/min/1.73m², sodium 138 mEq/L, potassium 4.2 mEq/L.\n\nLeft VEF 25%, severe global hypokinesis, MMR, estimated pasp 45 mmHg, LA 45 mL/m².\n\nWhat's the best approach for optimizing his heart failure therapy?",
+            "Create aftercare instructions for a patient discharged after a minor skin surgery. Explain how to care for the wound site, signs of infection to watch for, when they can shower, and when to come back for suture removal.",
         ),
 
         // system + tools (unchanged)
         createEmptyMessage(
             "system_001",
             MessageType.SYSTEM,
-            "",
+            "Analyzing the case...",
             {
                 event_name: "agent_thinking",
                 agent_id: "cardiology_agent",
@@ -477,353 +476,117 @@ export const clinical_case = {
             "thinking",
         ),
 
-        // AGENT (add citations)
-        createEmptyMessage(
-            "cardiology_agent",
-            MessageType.AGENT,
-            "I'll analyze this complex heart failure case. Based on the patient's profile—elderly male with HFrEF (EF 25%), diabetes, CKD stage 3a, and atrial fibrillation—I will align recommendations with contemporary guidelines and trials. <cite>evid_001</cite> <cite>evid_002</cite> <cite>evid_004</cite>",
-            {
-                agent_name: "Cardiology Agent",
-            },
-            "planning",
-        ),
-
         createEmptyMessage(
             "system_002",
             MessageType.SYSTEM,
-            "",
+            "Searching published medical literature, guidelines, and more",
             {
                 event_name: "tool_calling",
                 tool_name: "guideline_search",
                 parameters: {
-                    condition: "heart_failure_reduced_ef",
+                    query: "heart failure reduced ejection fraction",
                     year: "2023",
                 },
-            },
-            "planning",
-        ),
-
-        createEmptyMessage(
-            "guideline_tool",
-            MessageType.TOOL,
-            "Retrieved 2023 AHA/ACC/HFSA Heart Failure Guidelines. Key recommendations for HFrEF include quadruple therapy: ACE inhibitor/ARB, beta-blocker, MRA, and SGLT2 inhibitor. For patients with diabetes and HFrEF, SGLT2 inhibitors are now first-line. ARNI (sacubitril-valsartan) is preferred over ACE inhibitor when tolerated.",
-            { 
-                tool_name: "Guideline Search",
-                tool_parameters: {
-                    condition: "heart_failure_reduced_ef",
-                    year: "2023",
-                },
-                tool_response: { guidelines_found: 5, key_recommendations: 12 } 
             },
             "tooling",
         ),
 
+        // AGENT (add citations)
         createEmptyMessage(
             "system_003",
             MessageType.SYSTEM,
-            "",
+            "Synthesizing relevant information",
             {
-                event_name: "tool_calling",
-                tool_name: "evidence_search",
-                parameters: {
-                    drug: "dapagliflozin",
-                    condition: "heart_failure",
-                },
-            },
-            "tooling",
-        ),
-
-        createEmptyMessage(
-            "evidence_tool",
-            MessageType.TOOL,
-            "Found DAPA-HF trial results: Dapagliflozin reduced CV death or HF hospitalization by 26% (HR 0.74, 95% CI 0.65-0.85) in HFrEF patients regardless of diabetes status. NNT was 21 patients over 2.3 years. Safety profile was favorable.",
-            {
-                tool_name: "Trial Search",
-                tool_parameters: {
-                    drug: "dapagliflozin",
-                    condition: "heart_failure",
-                },
-                tool_response: {
-                    trials_found: 3,
-                    primary_outcome: "CV death or HF hospitalization",
-                    hazard_ratio: 0.74,
-                },
-            },
-            "tooling",
-        ),
-
-        // AGENT (add citations)
-        createEmptyMessage(
-            "cardiology_agent",
-            MessageType.AGENT,
-            "The evidence supports adding a SGLT2 inhibitor (e.g., dapagliflozin) now; renal function is adequate (eGFR 35) for initiation with standard dosing. I will review renal dosing and contraindications next. <cite>evid_005</cite> <cite>evid_007</cite> <cite>evid_009</cite>",
-            {
-                agent_name: "Cardiology Agent",
+                event_name: "agent_synthesizing",
+                agent_id: "cardiology_agent",
+                status: "synthesizing_case",
             },
             "planning",
         ),
 
-        createEmptyMessage(
-            "system_004",
-            MessageType.SYSTEM,
-            "",
-            {
-                event_name: "tool_calling",
-                tool_name: "drug_interaction_checker",
-                parameters: {
-                    medications: [
-                        "lisinopril",
-                        "metoprolol",
-                        "furosemide",
-                        "dapagliflozin",
-                    ],
-                    patient_conditions: [
-                        "CKD_stage_3a",
-                        "diabetes",
-                        "atrial_fibrillation",
-                    ],
-                },
-            },
-            "planning",
-        ),
-
-        createEmptyMessage(
-            "pharmacy_tool",
-            MessageType.TOOL,
-            "Drug interaction analysis complete. Dapagliflozin is safe in CKD stage 3a (eGFR ≥30). No significant interactions with current medications. Consider monitoring for volume depletion with furosemide. ARNI (sacubitril-valsartan) would require stopping lisinopril first due to ACE inhibitor overlap.",
-            {
-                tool_name: "Drug Interaction Checker",
-                tool_parameters: {
-                    medications: [
-                        "lisinopril",
-                        "metoprolol",
-                        "furosemide",
-                        "dapagliflozin",
-                    ],
-                    patient_conditions: [
-                        "CKD_stage_3a",
-                        "diabetes",
-                        "atrial_fibrillation",
-                    ],
-                },
-                tool_response: {
-                    interactions_found: 0,
-                    warnings: 1,
-                    recommendations: 3,
-                },
-            },
-            "tooling",
-        ),
-
-        // AGENT (add citations)
-        createEmptyMessage(
-            "nephrology_agent",
-            MessageType.AGENT,
-            "Agree with SGLT2 initiation; data suggest renal and cardiovascular benefit in HFrEF. For ARNI, efficacy persists in CKD stage 3, but we should watch blood pressure and potassium closely. <cite>evid_005</cite> <cite>evid_006</cite> <cite>evid_007</cite>",
-            {
-                agent_name: "Nephrology Agent",
-            },
-            "planning",
-        ),
-
-        createEmptyMessage(
-            "system_005",
-            MessageType.SYSTEM,
-            "",
-            {
-                event_name: "tool_calling",
-                tool_name: "trial_subgroup_analysis",
-                parameters: {
-                    trial: "PARADIGM-HF",
-                    subgroup: "CKD_stage_3",
-                    outcome: "safety_efficacy",
-                },
-            },
-            "planning",
-        ),
-
-        createEmptyMessage(
-            "trial_analysis_tool",
-            MessageType.TOOL,
-            "PARADIGM-HF subgroup analysis for CKD stage 3 patients (eGFR 30-60): ARNI showed consistent benefit with 18% reduction in CV death or HF hospitalization (HR 0.82, 95% CI 0.70-0.96). Safety profile acceptable with higher rates of hypotension (8.2% vs 5.8%) but lower hyperkalemia (11.2% vs 13.6%). No increase in renal adverse events.",
-            {
-                tool_name: "Trial Subgroup Analysis",
-                tool_parameters: {
-                    trial: "PARADIGM-HF",
-                    subgroup: "CKD_stage_3",
-                    outcome: "safety_efficacy",
-                },
-                tool_response: {
-                    subgroup_size: 1856,
-                    primary_outcome_hr: 0.82,
-                    safety_events: "acceptable",
-                },
-            },
-            "tooling",
-        ),
-
-        // AGENT (add citations)
-        createEmptyMessage(
-            "cardiology_agent",
-            MessageType.AGENT,
-            "Stepwise plan: (1) Add dapagliflozin 10 mg daily; (2) Transition from lisinopril to ARNI after washout; (3) Up-titrate beta-blocker to target as tolerated; (4) Consider MRA once potassium is stable. This aligns with guideline-directed quadruple therapy. <cite>evid_004</cite> <cite>evid_005</cite> <cite>evid_006</cite> <cite>evid_003</cite>",
-            {
-                agent_name: "Cardiology Agent",
-            },
-            "planning",
-        ),
-
-        // AGENT (add citations)
-        createEmptyMessage(
-            "endocrinology_agent",
-            MessageType.AGENT,
-            "From a diabetes standpoint, dapagliflozin is appropriate and confers CV/renal benefit. Keep metformin given current eGFR, and monitor for rare euglycemic DKA; check ketones with concerning symptoms. <cite>evid_009</cite> <cite>evid_005</cite> <cite>evid_007</cite>",
-            {
-                agent_name: "Endocrinology Agent",
-            },
-            "planning",
-        ),
-
-        createEmptyMessage(
-            "system_006",
-            MessageType.SYSTEM,
-            "",
-            {
-                event_name: "tool_calling",
-                tool_name: "dosing_calculator",
-                parameters: {
-                    drug: "dapagliflozin",
-                    eGFR: 35,
-                    weight: 85,
-                    age: 78,
-                },
-            },
-            "planning",
-        ),
-
-        createEmptyMessage(
-            "dosing_tool",
-            MessageType.TOOL,
-            "Dapagliflozin dosing calculation: Standard dose 10mg daily is appropriate for eGFR ≥30. No dose adjustment needed for this patient's renal function. Monitor for volume depletion, especially with concurrent furosemide. Consider reducing furosemide if patient becomes volume depleted.",
-            {
-                tool_name: "Dosing Calculator",
-                tool_parameters: {
-                    drug: "dapagliflozin",
-                    eGFR: 35,
-                    weight: 85,
-                    age: 78,
-                },
-                tool_response: {
-                    recommended_dose: "10mg daily",
-                    adjustments_needed: "none",
-                    monitoring_required: ["volume_status", "electrolytes"],
-                },
-            },
-            "tooling",
-        ),
-
-        // AGENT (add citations)
-        createEmptyMessage(
-            "pharmacy_agent",
-            MessageType.AGENT,
-            "Medication optimization: current regimen lacks SGLT2 inhibitor and MRA. For ARNI transition, stop lisinopril for 36 hours before initiating sacubitril-valsartan (e.g., 24/26 mg BID, titrate as tolerated). Monitor BP and potassium during up-titration. <cite>evid_004</cite> <cite>evid_006</cite> <cite>evid_003</cite>",
-            {
-                agent_name: "Pharmacy Agent",
-            },
-            "planning",
-        ),
-
-        createEmptyMessage(
-            "system_007",
-            MessageType.SYSTEM,
-            "",
-            {
-                event_name: "tool_calling",
-                tool_name: "contraindication_checker",
-                parameters: {
-                    drug: "spironolactone",
-                    conditions: ["CKD_stage_3a", "hyperkalemia_risk"],
-                    current_meds: ["lisinopril", "dapagliflozin"],
-                },
-            },
-            "planning",
-        ),
-
-        // AGENT (add citations)
-        createEmptyMessage(
-            "contraindication_tool",
-            MessageType.TOOL,
-            "MRA check: not contraindicated at eGFR 35; consider eplerenone or defer MRA until after ARNI optimization and potassium monitoring given hyperkalemia risk.",
-            {
-                tool_name: "Contraindication Checker",
-                tool_parameters: {
-                    drug: "spironolactone",
-                    conditions: ["CKD_stage_3a", "hyperkalemia_risk"],
-                    current_meds: ["lisinopril", "dapagliflozin"],
-                },
-                tool_response: {
-                    contraindicated: false,
-                    risk_level: "moderate",
-                    alternatives: ["eplerenone", "defer_until_stable"],
-                },
-            },
-            "tooling",
-        ),
-
-        // AGENT (add citations)
-        createEmptyMessage(
-            "cardiology_agent",
-            MessageType.AGENT,
-            "Final recommendation before summary: add dapagliflozin 10 mg daily; switch from lisinopril to sacubitril-valsartan after 36-hour washout; optimize metoprolol toward target dose; defer MRA until potassium consistently <5.0 mEq/L; close follow-up in ~2 weeks. <cite>evid_004</cite> <cite>evid_005</cite> <cite>evid_006</cite> <cite>evid_009</cite> <cite>evid_002</cite> <cite>evid_007</cite>",
-            {
-                agent_name: "Cardiology Agent",
-            },
-            "planning",
-        ),
-
-        createEmptyMessage(
-            "system_008",
-            MessageType.SYSTEM,
-            "",
-            {
-                event_name: "system_notification",
-                status: "analysis_complete",
-                summary:
-                    "Multi-agent analysis completed with consensus on quadruple therapy approach",
-            },
-            "summarizing",
-        ),
+        // createEmptyMessage(
+        //     "system_002",
+        //     MessageType.SYSTEM,
+        //     "",
+        //     {
+        //         event_name: "tool_calling",
+        //         tool_name: "guideline_search",
+        //         parameters: {
+        //             condition: "heart_failure_reduced_ef",
+        //             year: "2023",
+        //         },
+        //     },
+        //     "tooling",
+        // ),
 
         // NEW: FINAL answer to the user's first question (explicit, stage: "final")
         createEmptyMessage(
             "msg_final_001",
             MessageType.AGENT,
-            "Comprehensive plan to optimize heart failure therapy (HFrEF, EF 25%, diabetes, CKD3a, AF):\n\n" +
-              "## Assessment & goals:\n" +
-              "- The presentation (dyspnea/orthopnea/edema, JVD, rales, S3) with EF 25% and CKD3a is consistent with acute decompensated HFrEF on sub-optimal GDMT. <cite>evid_001</cite> <cite>evid_002</cite> <cite>evid_007</cite>\n" +
-              "- Therapeutic goals: relieve congestion, initiate/optimize disease-modifying therapy (quadruple therapy), minimize renal/electrolyte complications, and reduce readmission/CV death risk. <cite>evid_004</cite>\n\n" +
-              "## Stepwise disease-modifying therapy:\n" +
-              "1) Start SGLT2 inhibitor now — dapagliflozin 10 mg once daily. Kidney function is adequate (eGFR 35), and benefits extend regardless of diabetes status; monitor for volume depletion given concurrent loop diuretic. <cite>evid_005</cite> <cite>evid_009</cite> <cite>evid_007</cite>\n" +
-              "2) Transition ACEi → ARNI — stop lisinopril and observe a 36-hour washout, then start sacubitril/valsartan 24/26 mg BID, uptitrating as tolerated (target per BP/renal status). ARNI is preferred over ACEi in HFrEF and demonstrated superior outcomes. <cite>evid_004</cite> <cite>evid_006</cite>\n" +
-              "3) Beta-blocker optimization — continue metoprolol succinate and uptitrate toward target as tolerated with HR/BP guidance (e.g., q2–4 weeks). This provides mortality and hospitalization benefit in HFrEF. <cite>evid_004</cite>\n" +
-              "4) Consider MRA — once potassium is <5.0 mEq/L and renal function remains stable, add an MRA (consider eplerenone if hyperkalemia risk is a concern). With CKD3a (eGFR 35), MRA is not absolutely contraindicated but requires close K/Cr monitoring. <cite>evid_004</cite> <cite>evid_007</cite>\n\n" +
-              "## Congestion management & safety net:\n" +
-              "- Continue loop diuretic with daily weights and adjust to euvolemia; watch for SGLT2-related volume shifts. Check BMP within 3–7 days after changes. <cite>evid_007</cite> <cite>evid_005</cite>\n" +
-              "- During ACEi→ARNI transition, monitor BP, renal function, and potassium closely; counsel on hypotension symptoms. <cite>evid_006</cite> <cite>evid_004</cite>\n\n" +
-              "## Diabetes and CKD co-management:\n" +
-              "- Maintain metformin at current dose if clinically appropriate; reassess if eGFR declines toward <30. SGLT2 therapy provides CV/renal protection in diabetes with HF. <cite>evid_009</cite> <cite>evid_005</cite>\n" +
-              "- For CKD3a, reinforce sick-day rules (hold SGLT2 if poor intake/prolonged fasting/acute illness); monitor electrolytes and renal function during uptitrations. <cite>evid_009</cite> <cite>evid_007</cite>\n\n" +
-              "## AF and background therapy:\n" +
-              "- Continue anticoagulation (apixaban on board) and statin for ischemic disease as per current regimen; review doses with renal function trends. <cite>evid_003</cite> <cite>evid_007</cite>\n\n" +
-              "## Follow-up & monitoring plan:\n" +
-              "- Labs: BMP (K/Cr/eGFR/Na) in 3–7 days after SGLT2 start and after ARNI initiation/titrations; repeat with any dose change or symptom shift. <cite>evid_007</cite>\n" +
-              "- Clinic review in ~2 weeks to up-titrate ARNI and beta-blocker if stable; reassess volume status, BP, HR, symptoms, and weight trajectory. <cite>evid_004</cite>\n" +
-              "- Education: daily weights, salt/fluid guidance, hypotension and dehydration red-flags, rare euglycemic DKA symptoms (seek care if nausea/vomiting/abdominal pain). <cite>evid_009</cite> <cite>evid_005</cite>\n\n" +
-              "## Why this plan:\n" +
-              "- It implements guideline-directed quadruple therapy for HFrEF with evidence of reduced CV death and HF hospitalization (DAPA-HF, PARADIGM-HF) and guideline preference for ARNI over ACEi when feasible, tailored to this patient's EF 25% and CKD3a. <cite>evid_004</cite> <cite>evid_005</cite> <cite>evid_006</cite> <cite>evid_002</cite> <cite>evid_007</cite>",
+            `### Minor Skin Surgery Aftercare
+
+**Wound Site Care:**  
+  
+- Keep the wound clean and covered with a non-adherent, moist dressing for the first 24-48 hours to promote optimal healing and reduce infection risk. Application of a thin layer of petroleum jelly or a similar ointment is recommended to maintain a moist environment.[1][2][3][4]  
+  
+- Change the dressing daily or if it becomes wet or soiled. Cleanse the wound gently with tap water or saline; antiseptic solutions are not required for routine care.[5][1][2][4]  
+  
+- Avoid trauma or excessive movement at the wound site.  
+  
+**Signs of Infection to Monitor:**  
+  
+- Watch for increasing redness, swelling, warmth, pain, purulent discharge, or fever. The Infectious Diseases Society of America defines surgical site infection as the presence of purulent drainage, positive wound cultures, or local signs such as pain, swelling, and erythema.[6]  
+  
+- If any of these signs develop, seek prompt medical evaluation.  
+  
+**Showering Recommendations:**  
+  
+- Showering is permitted as early as 6-12 hours after surgery, as multiple randomized trials and meta-analyses show no increased risk of infection or complications with early water exposure.[7][8][9]  
+  
+- When showering, allow water to run gently over the wound. Avoid soaking (e.g., baths, swimming) until sutures are removed and the wound is fully healed.[5][10][8]  
+  
+- After showering, gently pat the area dry and reapply a clean dressing.  
+  
+**Suture Removal:**  
+  
+- Return for suture removal as advised, typically:  
+  
+- Face: **5-7 days**  
+  
+- Scalp: **7-10 days**  
+  
+- Trunk and upper extremities: **7-14 days**  
+  
+- Lower extremities: **10-14 days**  
+  
+These intervals are based on expert consensus and clinical experience.[4]  
+  
+- Adhere to the specific timeline provided at discharge, as wound location and patient factors may influence timing.  
+  
+**Additional Instructions:**  
+  
+- Minimize strenuous activity or stretching of the wound area until sutures are removed.  
+  
+- Protect the wound from sun exposure to optimize cosmetic outcomes.[11][3]  
+  
+- Ensure tetanus immunization is up to date if indicated.[1][4]  
+  
+### References
+
+1. Current Management of Acute Cutaneous Wounds. Singer AJ, Dagum AB. The New England Journal of Medicine. 2008;359(10):1037-46. doi:10.1056/NEJMra0707253.
+2. Management of Minor Acute Cutaneous Wounds: Importance of Wound Healing in a Moist Environment. Korting HC, Schöllmann C, White RJ. Journal of the European Academy of Dermatology and Venereology : JEADV. 2011;25(2):130-7. doi:10.1111/j.1468-3083.2010.03775.x.
+3. Wound Care Practices Following in-Office Cutaneous Surgery Among Family Physicians in Canada. Sander M, Rebner B, Wiens R, et al. Journal of Wound Care. 2024;33(Sup5):S14-S21. doi:10.12968/jowc.2024.33.Sup5.S14.
+4. Laceration Repair: A Practical Approach. Forsch RT, Little SH, Williams C. American Family Physician. 2017;95(10):628-636.
+5. Common Questions About Wound Care. Worster B, Zawora MQ, Hsieh C. American Family Physician. 2015;91(2):86-92.
+6. Practice Guidelines for the Diagnosis and Management of Skin and Soft Tissue Infections: 2014 Update by the Infectious Diseases Society of America. Stevens DL, Bisno AL, Chambers HF, et al. Clinical Infectious Diseases : An Official Publication of the Infectious Diseases Society of America. 2014;59(2):147-59. doi:10.1093/cid/ciu296.
+7. Early Postoperative Water Exposure Does Not Increase Complications in Cutaneous Surgeries: A Randomized, Investigator-Blinded, Controlled Trial. Samaan C, Kim Y, Zhou S, Kirby JS, Cartee TV. Journal of the American Academy of Dermatology. 2024;91(5):896-903. doi:10.1016/j.jaad.2024.05.098.
+8. Can Sutures Get Wet? Prospective Randomised Controlled Trial of Wound Management in General Practice. Heal C, Buettner P, Raasch B, et al. BMJ (Clinical Research Ed.). 2006;332(7549):1053-6. doi:10.1136/bmj.38800.628704.AE.
+9. Does the Timing of Postoperative Showering Impact Infection Rates? A Systematic Review and Meta-Analysis. Copeland-Halperin LR, Reategui Via Y Rada ML, Levy J, et al. Journal of Plastic, Reconstructive & Aesthetic Surgery : JPRAS. 2020;73(7):1306-1311. doi:10.1016/j.bjps.2020.02.007.
+10. Postoperative Showering for Clean and Clean-Contaminated Wounds: A Prospective, Randomized Controlled Trial. Hsieh PY, Chen KY, Chen HY, et al. Annals of Surgery. 2016;263(5):931-6. doi:10.1097/SLA.0000000000001359.
+11. Dermatological Postoperative Patient Information Leaflets: Is It Time for More Uniformity?. Hunt WT, McGrath EJ. Clinical and Experimental Dermatology. 2015;40(7):747-52. doi:10.1111/ced.12701.`,
             { agent_name: "Review Agent" },
             "final"
-          ),
+        ),
     ] as Message[],
 
     created_at: "2024-01-15T08:00:00Z",

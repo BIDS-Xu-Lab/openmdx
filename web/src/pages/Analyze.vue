@@ -244,6 +244,30 @@ onMounted(() => {
                 </div>
             </div>
 
+
+            <div v-else-if="['SYSTEM'].includes(message.message_type) && (case_store.show_thinking)"
+                class="message-item tool-message " >
+                <div class="message-header message-header-on-timeline p-2 flex justify-between items-center gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="role-icon font-medium text-sm">
+                            <font-awesome-icon icon="fa-solid fa-circle-nodes" />
+                        </span>
+                        <span class="italic">
+                            {{ message.text }}
+                        </span>
+                        <span class="text-xs">
+                            {{ new Date(message.created_at).toLocaleTimeString() }}
+                        </span>
+                    </div>
+                    
+                    <!-- System message toolbar -->
+                    <div class="message-toolbar mt-2 flex gap-2">
+                        
+                    </div>
+                </div>
+            </div>
+
+
             <div v-else-if="['TOOL'].includes(message.message_type) && (message.stage == 'final' || case_store.show_thinking)"
                 class="message-item tool-message " >
                 <div class="message-header message-header-on-timeline p-2 flex justify-between items-center gap-2">
