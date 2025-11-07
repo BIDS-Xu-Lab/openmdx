@@ -318,3 +318,4 @@ settings.toml
 .DS_Store
 *.db
 *.crt
+.vscode/
