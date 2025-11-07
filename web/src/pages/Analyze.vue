@@ -126,6 +126,11 @@ const copyMessageToClipboard = (message: Message) => {
     });
 };
 
+const togglePlaceholderDetails = () => {
+    console.log('togglePlaceholderDetails');
+    case_store.show_thinking = !case_store.show_thinking;
+};
+
 // Initialize case data
 onMounted(() => {
     if (case_store.clinical_case == null) {
@@ -232,6 +237,10 @@ onMounted(() => {
                 <div class="message-content italic text-center">
                     <font-awesome-icon icon="fa-regular fa-clock" />
                     {{ message.text }}
+
+                    <span class="text-sm cursor-pointer" @click="togglePlaceholderDetails">
+                        (view details)
+                    </span>
                 </div>
             </div>
 
@@ -290,7 +299,7 @@ onMounted(() => {
     </div>
 
     <!-- Chat Footer -->
-    <div class="chat-footer w-full border-t pl-4 pr-2 py-2">
+    <div class="chat-footer w-full border-t pl-4 pr-2 py-4">
         <div class="flex flex-col gap-2">
             <!-- Input area -->
             <Textarea 

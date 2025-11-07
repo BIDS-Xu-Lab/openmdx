@@ -13,6 +13,7 @@ export const useUserStore = defineStore('user', {
     getters: {
         isLoggedIn: (state) => !!state.session,
         userEmail: (state) => state.user?.email || '',
+        accessToken: (state) => state.session?.access_token || '',
     },
     actions: {
         async signIn(email: string, password: string) {
@@ -26,13 +27,22 @@ export const useUserStore = defineStore('user', {
                     throw error
                 }
 
+                // Save user and session
+                this.user = data.user;
+                this.session = data.session;
+
+                // Store session in localStorage for persistence
+                if (data.session) {
+                    localStorage.setItem('supabase_session', JSON.stringify(data.session));
+                }
+
                 return { success: true, data }
 
             } catch (err) {
+                this.error = err instanceof Error ? err.message : String(err);
                 return { success: false, error: err }
             }
         },
-
 
         async signOut() {
             try {
@@ -45,11 +55,48 @@ export const useUserStore = defineStore('user', {
                 // Clear local state
                 this.user = null;
                 this.session = null;
+                this.error = null;
+
+                // Clear localStorage
+                localStorage.removeItem('supabase_session');
 
                 return { success: true }
 
             } catch (err) {
+                this.error = err instanceof Error ? err.message : String(err);
                 return { success: false, error: err }
+            }
+        },
+
+        async initializeAuth() {
+            try {
+                // Check for existing session
+                const { data: { session }, error } = await supabase.auth.getSession();
+
+                if (error) {
+                    throw error;
+                }
+
+                if (session) {
+                    this.user = session.user;
+                    this.session = session;
+                }
+
+                // Listen for auth state changes
+                supabase.auth.onAuthStateChange((_event, session) => {
+                    this.user = session?.user || null;
+                    this.session = session;
+
+                    if (session) {
+                        localStorage.setItem('supabase_session', JSON.stringify(session));
+                    } else {
+                        localStorage.removeItem('supabase_session');
+                    }
+                });
+
+            } catch (err) {
+                this.error = err instanceof Error ? err.message : String(err);
+                console.error('Failed to initialize auth:', err);
             }
         }
     }

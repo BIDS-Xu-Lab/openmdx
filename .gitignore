@@ -317,3 +317,4 @@ settings.toml
 
 .DS_Store
 *.db
+*.crt

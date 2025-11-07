@@ -12,9 +12,28 @@
  */
 
 import type { ClinicalCase } from './models/ClinicalCase';
+import { useUserStore } from './stores/UserStore';
 
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:9627';
+
+/**
+ * Get authentication headers with JWT token
+ */
+function getAuthHeaders(): HeadersInit {
+    const userStore = useUserStore();
+    const token = userStore.accessToken;
+
+    const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+    };
+
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    return headers;
+}
 
 /**
  * API Response types
@@ -78,13 +97,14 @@ export const backend = {
 
         const response = await fetch(`${API_BASE_URL}/api/create_case`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify(request),
         });
 
         if (!response.ok) {
+            if (response.status === 401) {
+                throw new Error('Unauthorized. Please sign in.');
+            }
             throw new Error(`Failed to create case: ${response.statusText}`);
         }
 
@@ -97,9 +117,14 @@ export const backend = {
      * @returns Promise with full case data
      */
     async getCase(case_id: string): Promise<ClinicalCase> {
-        const response = await fetch(`${API_BASE_URL}/api/cases/${case_id}`);
+        const response = await fetch(`${API_BASE_URL}/api/cases/${case_id}`, {
+            headers: getAuthHeaders(),
+        });
 
         if (!response.ok) {
+            if (response.status === 401) {
+                throw new Error('Unauthorized. Please sign in.');
+            }
             if (response.status === 404) {
                 throw new Error('Case not found');
             }
@@ -114,9 +139,14 @@ export const backend = {
      * @returns Promise with list of cases
      */
     async getCases(): Promise<ClinicalCase[]> {
-        const response = await fetch(`${API_BASE_URL}/api/cases`);
+        const response = await fetch(`${API_BASE_URL}/api/cases`, {
+            headers: getAuthHeaders(),
+        });
 
         if (!response.ok) {
+            if (response.status === 401) {
+                throw new Error('Unauthorized. Please sign in.');
+            }
             throw new Error(`Failed to get cases: ${response.statusText}`);
         }
 
@@ -151,7 +181,17 @@ export const backend = {
         onDone?: (status: string) => void,
         onError?: (error: any) => void
     ): EventSource {
-        const eventSource = new EventSource(`${API_BASE_URL}/api/cases/${case_id}/stream`);
+        // EventSource doesn't support custom headers, so we pass the token as a query parameter
+        const userStore = useUserStore();
+        const token = userStore.accessToken;
+
+        if (!token) {
+            throw new Error('Not authenticated. Please sign in.');
+        }
+
+        // Pass token as query parameter for SSE authentication
+        const url = `${API_BASE_URL}/api/cases/${case_id}/stream?token=${encodeURIComponent(token)}`;
+        const eventSource = new EventSource(url);
 
         eventSource.onmessage = (event) => {
             try {

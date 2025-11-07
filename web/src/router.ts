@@ -9,9 +9,21 @@ import CaseHistory from './pages/CaseHistory.vue';
 const routes = [
     { path: '/', component: Home },
     { path: '/login', component: Login },
-    { path: '/analyze', component: Analyze },
-    { path: '/user_profile', component: UserProfile },
-    { path: '/case_history', component: CaseHistory },
+    {
+        path: '/analyze',
+        component: Analyze,
+        meta: { requiresAuth: true }  // This route requires authentication
+    },
+    {
+        path: '/user_profile',
+        component: UserProfile,
+        meta: { requiresAuth: true }  // This route requires authentication
+    },
+    {
+        path: '/case_history',
+        component: CaseHistory,
+        meta: { requiresAuth: true }  // This route requires authentication
+    },
 ]
 
 const router = createRouter({
@@ -20,5 +32,8 @@ const router = createRouter({
     ),
     routes,
 })
+
+// NOTE: Auth guard is registered in main.ts AFTER auth initialization
+// This ensures the session is restored before checking authentication
 
 export default router

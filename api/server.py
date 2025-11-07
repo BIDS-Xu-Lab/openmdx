@@ -14,6 +14,7 @@ from rq import Queue
 from sqlmodel import select
 import database
 from sqlmodel import Session
+from auth import get_current_user, get_user_id
 
 
 app = FastAPI(title="Clinical Case Management API")
@@ -94,7 +95,11 @@ async def health():
 
 
 @app.post('/api/create_case', response_model=CreateCaseResponse, status_code=status.HTTP_201_CREATED)
-async def create_case_endpoint(request: CreateCaseRequest, db: SessionDep):
+async def create_case_endpoint(
+    request: CreateCaseRequest,
+    db: SessionDep,
+    user_id: str = Depends(get_user_id)
+):
     """
     Create a new clinical case and enqueue processing job.
 
@@ -108,6 +113,8 @@ async def create_case_endpoint(request: CreateCaseRequest, db: SessionDep):
     - title: Case title
     - created_at: ISO timestamp
     - job_id: Job queue identifier
+
+    Requires authentication via JWT token.
     """
     question = request.question
     title = request.title or (question[:100] if question else "Untitled Case")
@@ -115,13 +122,14 @@ async def create_case_endpoint(request: CreateCaseRequest, db: SessionDep):
     # Generate unique case ID
     case_id = str(uuid.uuid4())
 
-    # Create case in database
-    case = database.create_case(db, case_id, title)
+    # Create case in database with user_id
+    case = database.create_case(db, case_id, user_id, title)
 
     # Enqueue job for processing
     job = job_queue.enqueue(
         'worker.process_case',
         case_id=case_id,
+        user_id=user_id,
         question=question,
         job_timeout='10m'
     )
@@ -136,7 +144,11 @@ async def create_case_endpoint(request: CreateCaseRequest, db: SessionDep):
 
 
 @app.get('/api/cases/{case_id}', response_model=CaseResponse)
-async def get_case_endpoint(case_id: str, db: SessionDep):
+async def get_case_endpoint(
+    case_id: str,
+    db: SessionDep,
+    user_id: str = Depends(get_user_id)
+):
     """
     Get full case data including all messages and evidence snippets.
 
@@ -148,8 +160,11 @@ async def get_case_endpoint(case_id: str, db: SessionDep):
     - evidence_snippets: List of evidence snippets
     - created_at: ISO timestamp
     - updated_at: ISO timestamp
+
+    Requires authentication via JWT token.
+    Only returns cases belonging to the authenticated user.
     """
-    case_data = database.get_case_full(db, case_id)
+    case_data = database.get_case_full(db, case_id, user_id)
 
     if not case_data:
         raise HTTPException(status_code=404, detail="Case not found")
@@ -158,7 +173,10 @@ async def get_case_endpoint(case_id: str, db: SessionDep):
 
 
 @app.get('/api/cases/{case_id}/stream')
-async def stream_case_endpoint(case_id: str):
+async def stream_case_endpoint(
+    case_id: str,
+    token: Optional[str] = None,
+):
     """
     Server-Sent Events endpoint for streaming case updates.
 
@@ -173,12 +191,30 @@ async def stream_case_endpoint(case_id: str):
     Note: We don't use SessionDep here because the session would close
     before the generator finishes. Instead, we create a new session for
     each database query.
+
+    Requires authentication via JWT token (passed as query parameter 'token').
+    Only streams cases belonging to the authenticated user.
+
+    EventSource doesn't support custom headers, so the token must be passed
+    as a query parameter.
     """
+    # Authenticate using query parameter token
+    from auth import verify_jwt_token
+    if not token:
+        raise HTTPException(status_code=401, detail="Missing authentication token")
+
+    try:
+        payload = verify_jwt_token(token)
+        user_id = payload["sub"]
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
     async def generate():
-        # Verify case exists
+        # Verify case exists and belongs to user
         from sqlmodel import Session
         with Session(database.engine) as db:
-            case = database.get_case(db, case_id)
+            case = database.get_case(db, case_id, user_id)
             if not case:
                 yield f"data: {json.dumps({'type': 'error', 'message': 'Case not found'})}\n\n"
                 return
@@ -194,12 +230,12 @@ async def stream_case_endpoint(case_id: str):
             # Create a new session for each iteration
             with Session(database.engine) as db:
                 # Get case status
-                case = database.get_case(db, case_id)
+                case = database.get_case(db, case_id, user_id)
                 if not case:
                     break
 
-                # Get new messages since last check
-                new_messages = database.get_new_messages(db, case_id, last_message_id)
+                # Get new messages since last check (filtered by user_id)
+                new_messages = database.get_new_messages(db, case_id, user_id, last_message_id)
 
                 # Send new messages
                 for msg in new_messages:
@@ -233,14 +269,20 @@ async def stream_case_endpoint(case_id: str):
 
 
 @app.get('/api/cases', response_model=CaseListResponse)
-async def list_cases_endpoint(db: SessionDep):
+async def list_cases_endpoint(
+    db: SessionDep,
+    user_id: str = Depends(get_user_id)
+):
     """
-    List all cases (for development/testing).
+    List all cases for the authenticated user.
 
     Response:
     - cases: List of case summaries
+
+    Requires authentication via JWT token.
+    Only returns cases belonging to the authenticated user.
     """
-    cases = database.get_cases(db, limit=50)
+    cases = database.get_cases(db, user_id, limit=50)
     return CaseListResponse(
         cases=[CaseListItem(**case.to_dict()) for case in cases]
     )

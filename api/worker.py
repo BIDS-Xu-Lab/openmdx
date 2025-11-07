@@ -26,7 +26,7 @@ from database import (
 from mockup_agent import MockupAgent
 
 
-def process_case(case_id: str, question: str):
+def process_case(case_id: str, user_id: str, question: str):
     """
     Process a clinical case using the mockup agent.
 
@@ -34,6 +34,7 @@ def process_case(case_id: str, question: str):
 
     Args:
         case_id: Unique identifier for the case
+        user_id: User ID who created the case
         question: Clinical question to analyze
 
     The function:
@@ -43,7 +44,7 @@ def process_case(case_id: str, question: str):
     4. Writes messages and evidence snippets to the database as they're generated
     5. Updates case status to COMPLETED or ERROR
     """
-    print(f"[Worker] Starting processing for case {case_id}")
+    print(f"[Worker] Starting processing for case {case_id} (user: {user_id})")
 
     try:
         with Session(engine) as db:
@@ -53,7 +54,7 @@ def process_case(case_id: str, question: str):
 
             # Add user's question as first message
             user_msg_id = f"user_{case_id[:8]}"
-            add_message(db, case_id, user_msg_id, {
+            add_message(db, case_id, user_id, user_msg_id, {
                 'from_id': 'user',
                 'message_type': 'USER',
                 'text': question,
@@ -73,7 +74,7 @@ def process_case(case_id: str, question: str):
                 if item['type'] == 'message':
                     # Add message to database
                     msg_data = item['data']
-                    add_message(db, case_id, msg_data['message_id'], {
+                    add_message(db, case_id, user_id, msg_data['message_id'], {
                         'from_id': msg_data['from_id'],
                         'message_type': msg_data['message_type'],
                         'text': msg_data.get('text', ''),
@@ -122,7 +123,7 @@ def process_case(case_id: str, question: str):
             with Session(engine) as db:
                 update_case_status(db, case_id, "ERROR")
                 # Add error message
-                add_message(db, case_id, f"error_{case_id[:8]}", {
+                add_message(db, case_id, user_id, f"error_{case_id[:8]}", {
                     'from_id': 'system',
                     'message_type': 'SYSTEM',
                     'text': f'An error occurred during processing: {str(e)}',
