@@ -13,6 +13,10 @@ const onClickSignIn = () => {
     router.push('/login');
 }
 
+const onClickSignUp = () => {
+    router.push('/signup');
+}
+
 const onClickSignOut = async () => {
     const result = await user_store.signOut();
     if (result.success) {
@@ -51,10 +55,16 @@ const onClickSignOut = async () => {
     </template>
     -->
     <template #end>
-        <div v-if="!isLoggedIn">
+        <div v-if="!isLoggedIn" class="flex items-center gap-2">
+            <Button size="small"
+                @click="onClickSignUp"
+                label="Sign Up"
+                icon="pi pi-user-plus"
+                outlined />
             <Button size="small"
                 @click="onClickSignIn"
-                label="Sign In" icon="pi pi-user" />
+                label="Sign In"
+                icon="pi pi-user" />
         </div>
         <div v-else class="flex items-center gap-3">
             <span class="text-sm">

@@ -16,6 +16,32 @@ export const useUserStore = defineStore('user', {
         accessToken: (state) => state.session?.access_token || '',
     },
     actions: {
+        async signUp(email: string, password: string) {
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        emailRedirectTo: `${window.location.origin}/login`
+                    }
+                })
+
+                if (error) {
+                    throw error
+                }
+
+                // Note: With email confirmation enabled, user won't be logged in yet
+                // They need to confirm their email first
+                console.log('Signup successful, confirmation email sent to:', email);
+
+                return { success: true, data }
+
+            } catch (err) {
+                this.error = err instanceof Error ? err.message : String(err);
+                return { success: false, error: err }
+            }
+        },
+
         async signIn(email: string, password: string) {
             try {
                 const { data, error } = await supabase.auth.signInWithPassword({
