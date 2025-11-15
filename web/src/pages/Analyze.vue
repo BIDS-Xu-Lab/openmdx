@@ -16,7 +16,6 @@ import Button from 'primevue/button';
 import Textarea from 'primevue/textarea';
 
 const data_store = useDataStore();
-data_store;
 const case_store = useCaseStore();
 
 // Computed properties

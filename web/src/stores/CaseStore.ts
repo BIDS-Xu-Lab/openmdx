@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import type { ClinicalCase, EvidenceSnippet, Message } from '../models/ClinicalCase';
-import { MessageType, MessageStage, createEmptyMessage } from '../models/ClinicalCase';
+import { MessageType, MessageStage, createEmptyMessage, createEmptyClinicalCase } from '../models/ClinicalCase';
+import { backend } from '../Backend';
 
 export const useCaseStore = defineStore('case', {
     state: () => ({
@@ -117,6 +118,30 @@ export const useCaseStore = defineStore('case', {
     },
 
     actions: {
+        initializeClinicalCase(
+            user_id: string,
+            user_message: string) {
+            this.clinical_case = createEmptyClinicalCase(
+            {
+                // TODO: get title from user message
+                title: "New clinical case", 
+                messages: [
+                    createEmptyMessage(
+                        user_id,
+                        MessageType.USER,
+                        user_message,
+                    ),
+                ],
+            });
+
+            // then, send out the case to backend
+            backend.createCase(
+                this.clinical_case?.title || "New clinical case",
+                user_message,
+            );
+            // next, start the SSE stream
+        },
+
         setClinicalCase(case_data: ClinicalCase | null) {
             this.clinical_case = case_data;
         },

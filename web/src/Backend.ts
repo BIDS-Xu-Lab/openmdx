@@ -88,11 +88,11 @@ export const backend = {
 
     /**
      * Create a new clinical case
-     * @param question - Patient question or case description
      * @param title - Optional case title
+     * @param question - Patient question or case description
      * @returns Promise with case creation response
      */
-    async createCase(question: string, title?: string): Promise<CreateCaseResponse> {
+    async createCase(title: string, question: string): Promise<CreateCaseResponse> {
         const request: CreateCaseRequest = { question, title };
 
         const response = await fetch(`${API_BASE_URL}/api/create_case`, {
@@ -163,6 +163,21 @@ export const backend = {
             created_at: c.created_at,
             updated_at: c.updated_at,
         }));
+    },
+
+    streamCaseMockup(
+        case_id: string,
+        onMessage?: (data: any) => void,
+        onStatus?: (status: string) => void,
+        onDone?: (status: string) => void,
+        onError?: (error: any) => void
+    ): EventSource {
+        // this is a mockup implementation of the streamCase function
+        // so we don't need to actually stream the case
+        // we just want to have a thread that sending messages
+        const eventSource = new EventSource('');
+
+        return eventSource;
     },
 
     /**
