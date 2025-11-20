@@ -101,7 +101,7 @@ const get_samples = () => {
     </div>
 
     <!-- Samples -->
-    <div class="flex lg:flex-row max-sm:flex-col gap-4 mb-2 lg:w-1/2">
+    <!-- <div class="flex lg:flex-row max-sm:flex-col gap-4 mb-2 lg:w-1/2">
 
         <Card v-for="sample in get_samples()" 
             class="lg:w-1/3 cursor-pointer clickable-sample"
@@ -115,11 +115,11 @@ const get_samples = () => {
                 </p>
             </template>
         </Card>
-    </div>
+    </div> -->
 
 
     <!-- More samples -->
-    <div class="flex flex-col items-center gap-4 mb-2 w-1/2 justify-center mt-4">
+    <!-- <div class="flex flex-col items-center gap-4 mb-2 w-1/2 justify-center mt-4">
         <p class="cursor-pointer" @click="onClickSeeMore">
             See more case samples ... 
             <template v-if="flag_show_more_samples">
@@ -137,7 +137,7 @@ const get_samples = () => {
                 </p>
             </Fieldset>
         </template>
-    </div>
+    </div> -->
     
 </div>
 </template>

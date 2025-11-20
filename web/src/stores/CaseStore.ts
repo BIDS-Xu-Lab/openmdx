@@ -7,7 +7,7 @@ export const useCaseStore = defineStore('case', {
     state: () => ({
         clinical_case: null as ClinicalCase | null,
         current_evidence_tab: null as string | null,
-        show_thinking: false,
+        show_thinking: true,
         chat_rating: 0,
         input_text: '',
         is_recording: false,

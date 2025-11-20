@@ -346,7 +346,446 @@ export const questions = [
 ];
 
 // Sample Clinical Case: Complex Heart Failure with Multiple Comorbidities (revised)
-export const clinical_case = {
+export const clinical_cases = [
+{
+    case_id: "case_facial_swelling_aftercare",
+    status: ClinicalCaseStatus.COMPLETED,
+    title: "Facial Swelling Aftercare",
+
+    evidence_snippets: [
+    {
+        snippet_id: "1",
+        text:
+            "Vlachodimitropoulos A, Gatsounia A, Danielides G, Dafni C, Lygeros S. Bilateral Peritonsillar Abscess Secondary to Infectious Mononucleosis. Cureus. 2025 Sep 22;17(9):e92958. doi: 10.7759/cureus.92958. PMID: 41133070; PMCID: PMC12543371.",
+        source_id: "41133070",
+        source_type: "pubmed",
+        source_citation: "Vlachodimitropoulos A, Gatsounia A, Danielides G, Dafni C, Lygeros S. Bilateral Peritonsillar Abscess Secondary to Infectious Mononucleosis. Cureus. 2025 Sep 22;17(9):e92958. doi: 10.7759/cureus.92958. PMID: 41133070; PMCID: PMC12543371.",
+        created_at: "2024-01-15T08:30:00Z",
+    },
+    {
+        snippet_id: "2",
+        text: "A 19-year-old transgender adolescent on hormonal therapy with a history of recent hospitalization for exudative tonsillitis presented with worsening sore throat, dysphagia, fever, and a diffuse, generalized macular rash involving the back, face, abdomen, arms, and legs. Despite prior antibiotic treatment with amoxicillin, her symptoms recurred, prompting further evaluation. Laboratory findings revealed leukocytosis with lymphocytic and monocytic predominance, elevated inflammatory markers, and a positive Epstein-Barr virus (EBV) test, confirming infectious mononucleosis. Imaging demonstrated persistent tonsillitis without abscess formation, and additional testing identified concurrent herpes simplex virus (HSV)-1 oral ulcers. Given persistent fevers and systemic inflammation, hemophagocytic lymphohistiocytosis (HLH) was considered but not confirmed. Management included IV clindamycin for tonsillitis, corticosteroids for airway inflammation, and doxycycline for atypical pneumonia. Over the 10-day hospitalization, the patient showed gradual improvement, with resolution of the rash and all other symptoms. The rash was ultimately diagnosed as an amoxicillin-induced rash associated with EBV infection. This case highlights the importance of recognizing amoxicillin-induced rash in EBV infection and distinguishing it from allergic reactions and other common rashes, including but not limited to scarlet fever, viral exanthem, drug reactions, and HLH. Although various skin rashes are common in the transgender population, a literature review found no evidence linking amoxicillin-induced EBV rash to transgender patients. Accurate diagnosis aids in the appropriate selection of antimicrobial therapy and helps avoid unnecessary antibiotic restrictions due to misattributed allergic reactions.",
+        source_id: "40786360",
+        source_type: "pubmed",
+        source_citation: "Gujar AA, Pernudi K, Adeyinka A, Kondamudi N. Epstein-Barr Virus (EBV) Masquerading as Exudative Tonsillitis and Rash in a Transgender Adolescent. Cureus. 2025 Jul 11;17(7):e87737. doi: 10.7759/cureus.87737. PMID: 40786360; PMCID: PMC12335877.",
+        created_at: "2024-01-15",
+    },
+    {
+        snippet_id: "3",
+        text:
+            "Infectious mononucleosis (IM), caused by the Epstein-Barr virus (EBV), is primarily a self-limiting illness. However, it often mimics bacterial infections, such as bacterial tonsillitis, which can represent a diagnostic pitfall and, consequently, increase the risk of developing complications. The aim of this case report is to highlight the complications resulting from the incorrect differential diagnosis of EBV-induced IM and its clinical significance. We present the case of a 24-year-old male who was initially misdiagnosed with bacterial tonsillitis. Amoxicillin-clavulanic acid was initiated for treatment, after which he developed a widespread maculopapular rash. Acute EBV infection was diagnosed via serological tests. His condition improved following the discontinuation of antibiotic therapy and the administration of supportive symptomatic treatment. This case underscores the critical need for careful differential diagnosis between viral and bacterial tonsillitis. It demonstrates that an amoxicillin-clavulanic acid-induced rash can serve as an important clue for underlying EBV infection, thereby preventing unnecessary antibiotic use and enabling the correct direction of investigation and management.",
+        source_id: "40895910",
+        source_type: "pubmed",
+        source_citation: "Chaprava T, Ostatishvili K, Kirtadze N, Goginava A, Tabatadze I. Amoxicillin-Clavulanic Acid-Induced Rash in Epstein-Barr Virus Infection: A Case Report of a Diagnostic Pitfall in a 24-Year-Old Male. Cureus. 2025 Jul 29;17(7):e89023. doi: 10.7759/cureus.89023. PMID: 40895910; PMCID: PMC12398297.",
+        created_at: "2024-01-15",
+    },
+    {
+        snippet_id: "4",
+        text: `Background: Lymphadenopathy refers to any disease process involving lymph nodes that are abnormal in size and consistency. There are multiple etiologies in the setting of a diseased lymph node, including conditions of infection, autoimmune diseases, and neoplasia. Lymphadenitis is a term that refers to lymphadenopathies that are due to inflammatory processes and can represent an acute bacterial infection resulting from streptococcal pharyngitis or a prior viral upper respiratory infection. Cervical lymphadenopathy refers to nodal swelling in the neck region. While cervical lymphadenitis is a common clinical finding in the setting of a transient response to a benign local or generalized infection, it may evade detection sometimes and thus account for a percentage of misdiagnosis or delayed diagnosis in the tropics. This case report is aimed at increasing the awareness about the presentation of bacterial cervical lymphadenitis and how it can sometimes mimic the presentation that is typical and regularly found with plasmodiasis. It contributes to improved awareness and high index of suspicion in clinic when dealing with patients in the tropics.
+
+Case presentation: We present a case of delayed diagnosis of bacterial cervical lymphadenitis that initially presented with typical features of malaria from Plasmodium falciparum. A 26-year-old Nigerian woman presented to the outpatient department following complaints of a recurring fever of a month's duration and bilateral neck swelling of about 2 weeks prior to presentation.
+
+Conclusion: In the setting of a busy clinic, details are easily missed and salient features in the presentation of a patient that are needed for accurate diagnosis and management could go unrecognized. Hence, this case report highlights the importance of proper examination particularly of lymph nodes and use of different diagnostic modalities for the exact diagnosis of disease.
+
+Keywords: Cervical; Delayed diagnosis; Fine needle aspiration cytology (FNAC); Lymphadenitis; Lymphadenopathy; Neck swelling.`,
+        source_id: "36755272",
+        source_type: "pubmed",
+        source_citation: "Olaniyi O, Ayotunde O, Christabel T, Idowu O. Delayed diagnosis of bacterial cervical lymphadenitis in the tropics: a case report. J Med Case Rep. 2023 Feb 9;17(1):41. doi: 10.1186/s13256-023-03773-9. PMID: 36755272; PMCID: PMC9909935.",
+        created_at: "2024-01-15",
+    },
+    {
+        snippet_id: "5",
+        text:
+            "Necrotizing lymphadenitis (NL) is a rare entity that can occur as a complication of bacterial cervical lymphadenitis (CL) and is characterized by unilateral or bilateral cervical lymphadenopathy. NL most commonly presents in females and most reports have been in Japan. In this case, we present a 37-year-old male with no significant past medical history who presented with an unusual presentation and clinical course of NL. Initial workup for Epstein-Barr Virus (EBV) and other infectious etiology was negative. Yet, aspiration later revealed Group A Streptococcus. When the patient's pain and swelling did not subside with the initial antibiotic and supportive treatment, the patient underwent a repeat aspiration and biopsy that revealed a necrotic mass or lymph node. NL is uncommon and rarely due to infectious etiology. However, this marks a case in which a Group A Streptococcus was shown to be associated with subsequent necrotic lymph nodes and should allow practitioners to further consider an infectious etiology in the differential diagnosis of NL.",
+        source_id: "36793849",
+        source_type: "pubmed",
+        source_citation: "De Paz N, Pupo A, Frankel LR, Roorda SL, Hernandez R. Group A Streptococcus Necrotizing Lymphadenitis: A Case Report. Cureus. 2023 Jan 12;15(1):e33699. doi: 10.7759/cureus.33699. PMID: 36793849; PMCID: PMC9925034.",
+        created_at: "2024-01-15",
+    },
+    {
+        snippet_id: "6",
+        text: `Objective: To identify patient and hospital characteristics associated with the choice of treatment for pediatric patients who present in the acute setting with peritonsillar abscess/cellulitis (PTA/PTC).
+
+Study design: A retrospective cohort study was performed using Healthcare Cost and Utilization Project emergency department, ambulatory, and inpatient state databases for the years 2010 and 2011. Children aged 0 to 17 years were identified using International Classification of Diseases, Ninth Revision, Clinical Modification (ICD-9-CM) diagnosis code for PTA/PTC. The main outcome of interest was treatment received, which included medical therapy alone, incision and drainage (IND) or tonsillectomy. Multiple logistic regression analyses were conducted to model non-clinical factors associated with treatment received after adjusting for age, hospital state, race, primary expected payer, existing chronic condition(s), and type of hospital.
+
+Results: We identified 2994 patients who presented with PTA/PTC. The most common treatment choice was medical therapy alone (30.8%), followed by IND (30.5%) and tonsillectomy (9.4%). There were significant associations between treatment choice and race, primary payer status, and type of hospital (P < .05). We found that Hispanic patients, those with Medicaid as their primary expected payer, and those treated at a designated children's hospital were 3 nonclinical factors independently associated with an increase in likelihood of receiving tonsillectomy as treatment.
+
+Conclusion: There are important nonclinical factors associated with treatment of children who present in the acute setting with PTA/PTC. Additional research is recommended to understand these observed differences in care and how they may affect health outcomes.
+
+Keywords: peritonsillar abscess/peritonsillar cellulitis (PTA/PTC); tonsillectomy.`,
+        source_id: "25589309",
+        source_type: "pubmed",
+        source_citation: "Nguyen T, Haberland CA, Hernandez-Boussard T. Pediatric Patient and Hospital Characteristics Associated With Treatment of Peritonsillar Abscess and Peritonsillar Cellulitis. Clin Pediatr (Phila). 2015 Nov;54(13):1240-6. doi: 10.1177/0009922814565884. Epub 2015 Jan 14. PMID: 25589309.",
+        created_at: "2024-01-15",
+    },
+    {
+        snippet_id: "7",
+        text:
+            "Accidental ingestion and overdose of medications used in thyroidal illnesses may occur because of the frequency of these diagnoses. This review discusses acute overdosage of 4 groups of medicines. Acute ingestion of thyroid replacement medications occurs very frequently. Overdosage in children is usually asymptomatic and a benign condition; after evacuation of the stomach, propranolol may be used to treat symptomatic children. Other therapeutic regimens are rarely indicated in this age group. Ingestions of large amounts of antithyroid medications occur very rarely and limited information regarding treatment is available in the medical literature. Acute ingestion of iodine often results in corrosive injury of the gastrointestinal tract and renal damage. Cardiopulmonary collapse secondary to circulatory failure, oedema of the epiglottis and aspiration pneumonias may cause death. Administration of starch and sodium thiosulphate, maintenance of airway and stabilisation of circulation are the major components of therapy. Acute overdosage of beta-blockers is uncommon but can be lethal. Patients may appear well initially but they can suddenly develop convulsions and profound cardiovascular collapse requiring instant aggressive therapy. Potassium and glucose concentrations should be monitored. The usage of atropine, isoprenaline (isoproterenol), glucagon and prenalteral is discussed.",
+        source_id: "2460721",
+        source_type: "pubmed",
+        source_citation: "Lin TH, Kirkland RT, Kirkland JL. Clinical features and management of overdosage with thyroid drugs. Med Toxicol Adverse Drug Exp. 1988 Jul-Aug;3(4):264-72. doi: 10.1007/BF03259939. PMID: 2460721.",
+        created_at: "2024-01-15",
+    },
+    {
+        snippet_id: "8",
+        text: "Retropharyngeal Abscess: A Subtle Presentation of a Deep Space Neck Infection",
+        source_id: "",
+        source_type: "pubmed",
+        source_citation: "Argintaru N, Carr D. Retropharyngeal Abscess: A Subtle Presentation of a Deep Space Neck Infection. J Emerg Med. 2017 Oct;53(4):568-569. doi: 10.1016/j.jemermed.2017.06.004. PMID: 29079072.",
+        created_at: "2024-01-15",
+    },
+    ],
+    messages: [
+        createEmptyMessage(
+            "user_001",
+            MessageType.USER,
+            `**Patient presents with:**
+
+**Facial Swelling**
+
+- Swelling noted to the right side of the neck with complaints of right ear and right-sided sore throat pain.
+- States hard to swallow due to pain.
+- Handling secretions without issue.
+
+---
+
+### HPI / PE
+
+**XX-year-old male** presents with facial swelling, reports that the right side of his neck and right ear have been hurting for the last few days, and states he has been unable to sleep. Pain worsens with swallowing. Denies any sick contacts, fevers, or chills.
+
+---
+
+**Vital Signs**
+
+| BP      | Pulse | Resp | Temp            | SpO2 | Height  | Weight   | BMI        |
+|---------|-------|------|-----------------|------|---------|----------|------------|
+| 138/78  | 71    | 17   | 98.9 °F (37.2 °C) (Temporal) | 96%  | 5'7" (1.702 m) | 76.5 kg  | 26.41 kg/m² |
+
+---
+
+**Physical Exam**
+
+- **Constitutional:** Not in acute distress. Normal appearance.
+- **HENT:** Normocephalic. Moist mucous membranes. Posterior oropharyngeal erythema present.
+- **Eyes:** Extraocular movements intact. Pupils equal, round, reactive to light.
+- **Cardiovascular:** Normal rate and regular rhythm.
+- **Pulmonary:** Normal effort and breath sounds.
+- **Abdomen:** Flat. No distension.
+- **Musculoskeletal:** No swelling or tenderness. Normal range of motion.
+- **Skin:** Warm. Capillary refill < 2 seconds.
+- **Neurological:** No focal deficit. Alert.
+
+---
+
+**Procedures / Attestation**
+
+- Clinical impression as of <<DATE>> 0007: **Pharyngitis, unspecified etiology**
+- **ED Disposition:** Discharge
+`,
+        ),
+
+        createEmptyMessage(
+            "system",
+            MessageType.SYSTEM,
+            "Generating initial differential diagnosis list with preliminary reasoning analysis.",
+            {
+                event_name: "agent_running",
+                agent_id: "multi_specialist_agent",
+                agent_name: "Multi-Specialist Agent",
+                status: "running",
+            },
+            "thinking",
+        ),
+
+        createEmptyMessage(
+            "system",
+            MessageType.SYSTEM,
+            "Extracting symptoms that require special attention.",
+            {
+                event_name: "agent_running",
+                agent_id: "warning_agent",
+                agent_name: "Warning Agent",
+                status: "running",
+            },
+            "thinking",
+        ),
+
+        createEmptyMessage(
+            "system",
+            MessageType.SYSTEM,
+            "Matching symptoms with \"should not miss\" disease guidelines.",
+            {
+                event_name: "agent_running",
+                agent_id: "warning_agent",
+                agent_name: "Warning Agent",
+                status: "running",
+            },
+            "thinking",
+        ),
+
+        createEmptyMessage(
+            "system",
+            MessageType.SYSTEM,
+            "Ranking the \"should not miss\" diagnosis list.",
+            {
+                event_name: "agent_running",
+                agent_id: "warning_agent",
+                agent_name: "Warning Agent",
+                status: "running",
+            },
+            "thinking",
+        ),
+
+        createEmptyMessage(
+            "system",
+            MessageType.SYSTEM,
+            "Collecting the differential diagnosis list and \"should not miss\" diagnosis list.",
+            {
+                event_name: "agent_running",
+                agent_id: "context_review_agent",
+                agent_name: "Context Review Agent",
+                status: "running",
+            },
+            "thinking",
+        ),
+
+        createEmptyMessage(
+            "system",
+            MessageType.SYSTEM,
+            "Grouping similar diagnoses and reducing duplication.",
+            {
+                event_name: "agent_running",
+                agent_id: "context_review_agent",
+                agent_name: "Context Review Agent",
+                status: "running",
+            },
+            "thinking",
+        ),
+
+        createEmptyMessage(
+            "system",
+            MessageType.SYSTEM,
+            "Searching PubMed results for each diagnosis in the list.",
+            {
+                event_name: "agent_running",
+                agent_id: "diagnosis_reasoning_agent",
+                agent_name: "Diagnosis Reasoning Agent",
+                status: "running",
+            },
+            "thinking",
+        ),
+
+        createEmptyMessage(
+            "system",
+            MessageType.SYSTEM,
+            "Matching diagnostic evidence with the patient case, providing confidence levels, and generating supporting evidence.",
+            {
+                event_name: "agent_running",
+                agent_id: "diagnosis_reasoning_agent",
+                agent_name: "Diagnosis Reasoning Agent",
+                status: "running",
+            },
+            "thinking",
+        ),
+
+        createEmptyMessage(
+            "system",
+            MessageType.SYSTEM,
+            "Aggregating all diagnostic reasoning results, re-ranking the diagnosis list, and generating a final reasoning summary.",
+            {
+                event_name: "agent_running",
+                agent_id: "overall_reasoning_agent",
+                agent_name: "Overall Reasoning Agent",
+                status: "running",
+            },
+            "thinking",
+        ),
+
+        createEmptyMessage(
+            "system",
+            MessageType.SYSTEM,
+            "Providing additional actions required for each diagnosis.",
+            {
+                event_name: "agent_running",
+                agent_id: "diagnostic_action_agent",
+                agent_name: "Diagnostic Action Agent",
+                status: "running",
+            },
+            "thinking",
+        ),
+
+        createEmptyMessage(
+            "system",
+            MessageType.SYSTEM,
+            "Compiling all actions and the final reasoning report, then generating the comprehensive management plan for the patient.",
+            {
+                event_name: "agent_running",
+                agent_id: "management_agent",
+                agent_name: "Management Agent",
+                status: "running",
+            },
+            "thinking",
+        ),
+
+        createEmptyMessage(
+            "agent",
+            MessageType.AGENT,
+            `## Top-3 Diagnosis
+
+1. Viral Infections of the Throat
+2. Acute unilateral cervical lymphadenitis (likely bacterial
+3. Right peritonsillar cellulitis (early peritonsillar abscess)
+
+## Top-3 "Should Not Miss" Diagnosis
+
+1. Epiglottitis
+2. Retropharyngeal abscess
+3. Peritonsillar abscess
+
+---
+
+## Clinical Reasoning
+
+**Summary:**  
+Right-sided sore throat with ipsilateral ear/neck swelling, normal vitals, and intact secretion handling most likely reflects pharyngitis with reactive/bacterial cervical lymphadenitis. Early peritonsillar infection remains possible. Dangerous airway/deep neck infections are less likely now but must be reconsidered if red flags (fever, trismus, muffled voice, drooling, stridor, toxicity, worsening swelling) appear.
+
+---
+
+### Diagnoses Considered
+
+<details>
+<summary><strong>1. Viral Infections of the Throat</strong></summary>
+
+- **Why it fits:** Posterior oropharyngeal erythema, afebrile, normal vitals, no trismus/airway compromise, and ability to handle secretions compatible with uncomplicated viral pharyngitis (including EBV), which can mimic bacterial tonsillitis and may be unilateral. Recognizing EBV matters to avoid aminopenicillin rash.
+- **Gaps/concerns:** Unilateral neck swelling and ipsilateral otalgia also suggest bacterial tonsillitis/adenitis or peritonsillar/deep neck pathology. No rapid strep/culture, mono testing, or documentation of exudates, tonsillar asymmetry, uvular deviation, or viral URI signs.
+- **Verification:** Perform rapid strep and/or throat culture; consider heterophile antibody or EBV serologies if clinically suspected; treat supportively; return precautions.
+
+</details>
+
+<details>
+<summary><strong>2. Acute unilateral cervical lymphadenitis (likely bacterial)</strong></summary>
+
+- **Why it fits:** Several days of unilateral right neck swelling with ipsilateral ear pain and odynophagia, plus pharyngeal erythema, typical for acute cervical lymphadenitis from oropharyngeal infection (commonly GAS or Staph aureus). Intact secretion handling and normal vitals favor uncomplicated adenitis.
+- **Limitations:** No documented node exam (size, warmth, tenderness, fluctuance), no fever, no labs/microbiology, no otoscopic/dental/salivary source identified. ED impression nonspecific pharyngitis.
+- **Verification:** Cervical node exam, otoscopic, oral/dental, and salivary gland evaluation, rapid strep/culture, CBC/CRP. Consider empiric antibiotics; use neck US to assess nodes. Escalate to CT if complications.
+
+</details>
+
+<details>
+<summary><strong>3. Right peritonsillar cellulitis (early peritonsillar abscess)</strong></summary>
+
+- **Why it fits:** Unilateral odynophagia with ipsilateral otalgia and neck/facial swelling suggests peritonsillar infection. Afebrile, no drooling, preserved secretion control favors cellulitis/early infection over mature abscess.
+- **Missing data:** No hallmark PTA signs (tonsillar bulge, uvular deviation, trismus, muffled voice), nor imaging or aspiration performed. Other causes (pharyngitis, adenitis, etc.) possible.
+- **Verification:** Reassess for peritonsillar asymmetry, uvular deviation, trismus; bedside US to identify collection and guide aspiration; CT if uncertain. Negative aspiration supports cellulitis (antibiotics).
+
+</details>
+
+---
+
+### Warning Diagnoses Not To Miss
+
+| Diagnosis                   | Why It Matters / Key Features                                                   | Verification                                                                  |
+|-----------------------------|--------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
+| **Epiglottitis**            | Progressive odynophagia, drooling, muffled voice, stridor, toxic appearance. Absent here but must remain vigilant. | Upright position, avoid oral exam, urgent ENT/anesthesia, IV antibiotics.      |
+| **Retropharyngeal abscess** | Severe sore throat, neck pain/stiffness, muffled voice, trismus, fever, posterior pharyngeal wall bulge. Absent now, but possible early. | Contrast CT neck, CBC/CRP, ENT consult, IV antibiotics, urgent drainage if abscess. |
+| **Peritonsillar abscess**   | PTA can evolve from cellulitis; watch for unilateral pain, trismus, muffled voice, uvular deviation. | Intraoral US or CT, needle aspiration, drainage with antibiotics, airway assessment. |
+
+---
+
+
+## Management
+
+**Summary:**  
+Likely acute pharyngitis with reactive/bacterial cervical lymphadenitis; early right peritonsillar infection is possible, but no current airway compromise.
+
+---
+
+### 1. Immediate Priorities and Safety
+
+- Reassess airway now and at discharge (swallowing, drooling, stridor, trismus, muffled voice, rapidly progressing swelling).
+- Any red flags: keep upright, urgent ENT/anesthesia, prepare airway.
+
+---
+
+### 2. Focused Exam Today
+
+- **ENT:** Document tonsil size/exudate, peritonsillar fullness, uvular deviation, trismus, voice quality.
+- **Neck:** Map right cervical nodes (size, tenderness, fluctuance, warmth, mobility, location), overlying erythema.
+- **Otoscopy:** Rule out AOM.
+- **Oral/dental exam:** Assess for odontogenic source.
+- **Salivary glands:** Parotid/submandibular swelling, duct findings.
+- **Score:** Calculate Centor/McIsaac score.
+
+---
+
+### 3. Diagnostics
+
+- Group A Strep: RADT today; if negative but Centor ≥3 or high suspicion—throat culture/NAAT.
+- Point-of-care US: Assess for peritonsillar collection and nodal suppuration.
+- Labs (bacterial features/ill-appearing): CBC, CRP (±ESR), EBV tests if indicated, COVID/flu NAATs as needed.
+- Fluctuant node/collection: US-guided aspiration for Gram stain/culture.
+
+---
+
+### 4. Treatment Pathways
+
+- **Viral pharyngitis likely:**  
+    - NSAIDs/acetaminophen, adjuncts (gargle, lozenge, fluids, rest), optional dexamethasone for severe pain.
+    - NO antibiotics.
+
+- **Bacterial lymphadenitis/peritonsillar cellulitis suspected, PO tolerated:**  
+    - Empiric antibiotics (amox-clavulanate 875/125 mg PO BID x7-10d; clinda if pen-allergic), analgesia, ±dexamethasone.
+    - Avoid aminopenicillins if mono strongly suspected.
+
+- **Peritonsillar abscess confirmed or unable to take PO/airway risk:**  
+    - Urgent drainage, IV abx (amp-sulbactam; clinda if allergic), IV/IM dexamethasone.
+    - Monitor until PO tolerated, switch to oral.
+    - Admit if airway/sepsis/dehydration/deep neck.
+
+---
+
+### 5. Disposition & Follow-up
+
+- Outpatient care appropriate.
+- Recheck in 24-48 hrs (earlier if worsening) for results/clinical course. Escalate to imaging/ENT if no improvement or suspicion for abscess.
+- Persistent/recurrent nodes >2-4 weeks, hard/fixed: further ENT workup and imaging (US/CT, FNA).
+
+---
+
+### 6. Return Precautions (ED Immediately If…)
+
+- New/worsening trismus, muffled voice, drooling, stridor, dyspnea, rapidly increasing swelling, severe pain, dehydration, inability to swallow fluids, fever ≥101°F (38.3°C), or spreading erythema.
+
+---
+
+### 7. Patient Guidance
+
+- Maintain hydration, avoid smoking/irritants, no utensil sharing. If EBV confirmed, avoid contact sports 3–4 weeks.
+
+---
+
+**Documentation checklist:**  
+Record:  
+- Exam details (tonsillar asymmetry, uvula, trismus, node map)
+- Centor score
+- Airway assessment
+- Tests ordered/results
+- Antibiotic choice/rationale
+- Explicit return precautions
+
+---`,
+            {
+                event_name: "agent_running",
+                agent_id: "warning_agent",
+                status: "running",
+            },
+            "final",
+        ),
+    ],
+},
+
+{
     case_id: "case_heart_failure_2024_001",
     status: ClinicalCaseStatus.COMPLETED,
     title: "Complex Heart Failure with Reduced Ejection Fraction in Elderly Patient with Multiple Comorbidities",
@@ -465,7 +904,7 @@ export const clinical_case = {
 
         // system + tools (unchanged)
         createEmptyMessage(
-            "system_001",
+            "system",
             MessageType.SYSTEM,
             "Analyzing the case...",
             {
@@ -477,7 +916,7 @@ export const clinical_case = {
         ),
 
         createEmptyMessage(
-            "system_002",
+            "system",
             MessageType.SYSTEM,
             "Searching published medical literature, guidelines, and more",
             {
@@ -493,7 +932,7 @@ export const clinical_case = {
 
         // AGENT (add citations)
         createEmptyMessage(
-            "system_003",
+            "system",
             MessageType.SYSTEM,
             "Synthesizing relevant information",
             {
@@ -521,7 +960,7 @@ export const clinical_case = {
 
         // NEW: FINAL answer to the user's first question (explicit, stage: "final")
         createEmptyMessage(
-            "msg_final_001",
+            "agent",
             MessageType.AGENT,
             `### Minor Skin Surgery Aftercare
 
@@ -591,4 +1030,9 @@ These intervals are based on expert consensus and clinical experience.[4]
 
     created_at: "2024-01-15T08:00:00Z",
     updated_at: "2024-01-15T15:30:00Z",
-} as ClinicalCase;
+},
+
+
+
+
+] as ClinicalCase[];

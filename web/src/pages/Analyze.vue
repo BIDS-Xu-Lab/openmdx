@@ -7,7 +7,7 @@ import { MessageType } from '../models/ClinicalCase';
 import type { Message } from '../models/ClinicalCase';
 import { marked } from 'marked';
 import { useToast } from 'primevue/usetoast';
-import { clinical_case as sample_clinical_case } from '../models/Samples';
+import { clinical_cases as sample_clinical_cases } from '../models/Samples';
 
 const toast = useToast();
 
@@ -133,7 +133,7 @@ const togglePlaceholderDetails = () => {
 // Initialize case data
 onMounted(() => {
     if (case_store.clinical_case == null) {
-        case_store.setClinicalCase(sample_clinical_case);
+        case_store.setClinicalCase(sample_clinical_cases[0]!);
     }
 
     case_store.cite_popup_ref = cite_popup_ref.value;
@@ -210,7 +210,7 @@ onMounted(() => {
                             <font-awesome-icon icon="fa-solid fa-check-circle" />
                         </span>
                         <span>
-                            Answer to your question
+                            Results Summary
                         </span>
                     </div>
                     
@@ -251,12 +251,14 @@ onMounted(() => {
                         <span class="role-icon font-medium text-sm">
                             <font-awesome-icon icon="fa-solid fa-circle-nodes" />
                         </span>
-                        <span class="italic">
-                            {{ message.text }}
-                        </span>
-                        <span class="text-xs">
-                            {{ new Date(message.created_at).toLocaleTimeString() }}
-                        </span>
+                        <div class="flex flex-col">
+                            <span class="text-xs">
+                                {{ message.payload_json?.agent_name }}
+                            </span>
+                            <span class="italic">
+                                {{ message.text }}
+                            </span>
+                        </div>
                     </div>
                     
                     <!-- System message toolbar -->
@@ -435,6 +437,10 @@ onMounted(() => {
     background-color: var(--border-color);
     padding: 0.25rem;
     border-radius: 0.25rem;
+}
+.user-message {
+    margin-bottom: 2rem;
+    border-bottom: 2px solid var(--border-color);
 }
 .tool-message {
     margin-left: 1rem;

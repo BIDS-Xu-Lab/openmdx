@@ -104,7 +104,20 @@ body {
   @apply text-sm italic;
   color: var(--text-color);
 }
-
+.message-content p {
+  @apply text-base;
+  margin: 0.2rem 0;
+}
+.message-content ul,
+.message-content ol {
+  margin: 0.2rem 0;
+}
+.message-content li {
+  margin: 0 0 0.1rem 0;
+}
+.message-content hr {
+  margin: 0.5rem 0;
+}
 .prose {
   color: var(--text-color);
 }

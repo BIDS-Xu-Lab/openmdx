@@ -13,6 +13,7 @@
 
 import type { ClinicalCase } from './models/ClinicalCase';
 import { useUserStore } from './stores/UserStore';
+import { clinical_cases } from './models/Samples';
 
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:9627';
@@ -172,12 +173,114 @@ export const backend = {
         onDone?: (status: string) => void,
         onError?: (error: any) => void
     ): EventSource {
-        // this is a mockup implementation of the streamCase function
-        // so we don't need to actually stream the case
-        // we just want to have a thread that sending messages
-        const eventSource = new EventSource('');
+        // Mock EventSource-like object that simulates SSE streaming
+        // Uses setTimeout to send messages asynchronously without blocking the main thread
+        interface MockEventSource extends EventSource {
+            _readyState: number;
+        }
 
-        return eventSource;
+        const mockEventSource = {
+            _readyState: EventSource.CONNECTING,
+            get readyState() {
+                return this._readyState;
+            },
+            url: '',
+            withCredentials: false,
+            close: () => {},
+        } as MockEventSource;
+
+        // Track if the stream is closed
+        let isClosed = false;
+        let messageIndex = 0;
+
+        // Get messages from sample case, excluding the first USER message
+        const sampleMessages = clinical_cases[0]!.messages.slice(1); // Skip first user message
+
+        // Build mock messages array using only the sample messages
+        const mockMessages: Array<{
+            type: 'message' | 'status' | 'done' | 'error';
+            data?: any;
+            status?: string;
+            message?: string;
+        }> = sampleMessages.map(msg => ({
+            type: 'message' as const,
+            data: msg,
+        }));
+
+        // Function to send the next message
+        const sendNextMessage = () => {
+            if (isClosed) {
+                return;
+            }
+            
+            // If all messages are sent, close the stream
+            if (messageIndex >= mockMessages.length) {
+                onDone?.('COMPLETED');
+                mockEventSource._readyState = EventSource.CLOSED;
+                isClosed = true;
+                return;
+            }
+
+            const message = mockMessages[messageIndex];
+            if (!message) {
+                return;
+            }
+            messageIndex++;
+
+            // Use setTimeout to ensure non-blocking execution
+            setTimeout(() => {
+                if (isClosed) {
+                    return;
+                }
+
+                try {
+                    switch (message.type) {
+                        case 'message':
+                            if (message.data) {
+                                onMessage?.(message.data);
+                            }
+                            break;
+                        case 'status':
+                            if (message.status) {
+                                onStatus?.(message.status);
+                            }
+                            break;
+                        case 'done':
+                            if (message.status) {
+                                onDone?.(message.status);
+                            }
+                            mockEventSource._readyState = EventSource.CLOSED;
+                            isClosed = true;
+                            return; // Stop sending more messages
+                        case 'error':
+                            onError?.(new Error(message.message || 'Stream error'));
+                            mockEventSource._readyState = EventSource.CLOSED;
+                            isClosed = true;
+                            return;
+                    }
+
+                    // Schedule next message (vary delay between 3-5 seconds)
+                    const delay = 3000 + Math.random() * 2000;
+                    setTimeout(sendNextMessage, delay);
+                } catch (error) {
+                    console.error('Error in mock stream:', error);
+                    onError?.(error);
+                    isClosed = true;
+                }
+            }, 0);
+        };
+
+        // Override close method
+        mockEventSource.close = () => {
+            isClosed = true;
+            mockEventSource._readyState = EventSource.CLOSED;
+        };
+
+        // Start streaming after a short delay to simulate connection establishment
+        mockEventSource._readyState = EventSource.OPEN;
+        setTimeout(sendNextMessage, 100);
+
+        return mockEventSource as EventSource;
     },
 
     /**
