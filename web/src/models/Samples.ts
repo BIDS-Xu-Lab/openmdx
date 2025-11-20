@@ -654,32 +654,24 @@ Right-sided sore throat with ipsilateral ear/neck swelling, normal vitals, and i
 
 ### Diagnoses Considered
 
-<details>
-<summary><strong>1. Viral Infections of the Throat</strong></summary>
+**1. Viral Infections of the Throat**
 
 - **Why it fits:** Posterior oropharyngeal erythema, afebrile, normal vitals, no trismus/airway compromise, and ability to handle secretions compatible with uncomplicated viral pharyngitis (including EBV), which can mimic bacterial tonsillitis and may be unilateral. Recognizing EBV matters to avoid aminopenicillin rash.
 - **Gaps/concerns:** Unilateral neck swelling and ipsilateral otalgia also suggest bacterial tonsillitis/adenitis or peritonsillar/deep neck pathology. No rapid strep/culture, mono testing, or documentation of exudates, tonsillar asymmetry, uvular deviation, or viral URI signs.
 - **Verification:** Perform rapid strep and/or throat culture; consider heterophile antibody or EBV serologies if clinically suspected; treat supportively; return precautions.
 
-</details>
-
-<details>
-<summary><strong>2. Acute unilateral cervical lymphadenitis (likely bacterial)</strong></summary>
+**2. Acute unilateral cervical lymphadenitis (likely bacterial)**
 
 - **Why it fits:** Several days of unilateral right neck swelling with ipsilateral ear pain and odynophagia, plus pharyngeal erythema, typical for acute cervical lymphadenitis from oropharyngeal infection (commonly GAS or Staph aureus). Intact secretion handling and normal vitals favor uncomplicated adenitis.
 - **Limitations:** No documented node exam (size, warmth, tenderness, fluctuance), no fever, no labs/microbiology, no otoscopic/dental/salivary source identified. ED impression nonspecific pharyngitis.
 - **Verification:** Cervical node exam, otoscopic, oral/dental, and salivary gland evaluation, rapid strep/culture, CBC/CRP. Consider empiric antibiotics; use neck US to assess nodes. Escalate to CT if complications.
 
-</details>
-
-<details>
-<summary><strong>3. Right peritonsillar cellulitis (early peritonsillar abscess)</strong></summary>
+**3. Right peritonsillar cellulitis (early peritonsillar abscess)**
 
 - **Why it fits:** Unilateral odynophagia with ipsilateral otalgia and neck/facial swelling suggests peritonsillar infection. Afebrile, no drooling, preserved secretion control favors cellulitis/early infection over mature abscess.
 - **Missing data:** No hallmark PTA signs (tonsillar bulge, uvular deviation, trismus, muffled voice), nor imaging or aspiration performed. Other causes (pharyngitis, adenitis, etc.) possible.
 - **Verification:** Reassess for peritonsillar asymmetry, uvular deviation, trismus; bedside US to identify collection and guide aspiration; CT if uncertain. Negative aspiration supports cellulitis (antibiotics).
 
-</details>
 
 ---
 

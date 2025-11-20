@@ -19,6 +19,12 @@ export const useCaseStore = defineStore('case', {
         hovered_snippet_id: null as string | null,
         cite_popup_ref: null,
         hide_overlay_panel_timeout: null as number | null,
+
+        // streaming state
+        stream_event_source: null as EventSource | null,
+        is_streaming: false,
+        final_message_typing_text: null as string | null,
+        stream_updated_at: new Date().toISOString(),
     }),
 
     getters: {
@@ -281,6 +287,102 @@ export const useCaseStore = defineStore('case', {
             a.download = `evidence_${this.clinical_case?.case_id || 'unknown'}.json`;
             a.click();
             URL.revokeObjectURL(url);
+        },
+
+        startMockupStream() {
+            if (!this.clinical_case || this.is_streaming) {
+                return;
+            }
+
+            this.is_streaming = true;
+            this.final_message_typing_text = null;
+
+            // Clear existing messages except the first USER message
+            if (this.clinical_case.messages.length > 0) {
+                const firstMessage = this.clinical_case.messages[0];
+                if (firstMessage) {
+                    this.clinical_case.messages = [firstMessage];
+                }
+            }
+
+            const eventSource = backend.streamCaseMockup(
+                this.clinical_case.case_id,
+                (message: Message) => {
+                    // Handle intermediate messages
+                    this.addMessage(message);
+                },
+                (message: Message) => {
+                    // Handle final message - start typing animation
+                    this.handleFinalMessage(message);
+                    this.is_streaming = false;
+                },
+                (error: any) => {
+                    console.error('Stream error:', error);
+                    this.is_streaming = false;
+                }
+            );
+
+            this.stream_event_source = eventSource;
+        },
+
+        handleFinalMessage(message: Message) {
+            // Start typing animation for final message
+            if (message.text) {
+                // Add the message with empty text first
+                const typingMessage: Message = {
+                    ...message,
+                    text: '',
+                };
+                this.addMessage(typingMessage);
+                
+                // Start typing animation
+                this.typeFinalMessage(message.text);
+            } else {
+                this.addMessage(message);
+            }
+        },
+
+        typeFinalMessage(fullText: string) {
+            let currentIndex = 0;
+            const typingSpeed = 10; // milliseconds per character
+
+            const typeNextChar = () => {
+                if (!this.clinical_case) return;
+                
+                const messages = this.clinical_case.messages;
+                if (messages.length === 0) return;
+                
+                const lastMessage = messages[messages.length - 1];
+
+                console.log('typing lastMessage:', currentIndex);
+                
+                if (lastMessage && currentIndex < fullText.length) {
+                    // Update the last message's text
+                    lastMessage.text = fullText.substring(0, currentIndex + 1);
+                    this.clinical_case.updated_at = new Date().toISOString();
+                    currentIndex++;
+
+                    // update the stream_updated_at
+                    this.stream_updated_at = new Date().toISOString();
+                    setTimeout(typeNextChar, typingSpeed);
+                } else {
+                    // Typing complete
+                    this.final_message_typing_text = null;
+                    this.stream_updated_at = new Date().toISOString();
+                }
+            };
+
+            // Start typing after a short delay
+            setTimeout(typeNextChar, typingSpeed);
+        },
+
+        stopStream() {
+            if (this.stream_event_source) {
+                this.stream_event_source.close();
+                this.stream_event_source = null;
+            }
+            this.is_streaming = false;
+            this.final_message_typing_text = null;
         }
     }
 });

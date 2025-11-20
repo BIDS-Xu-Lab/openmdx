@@ -11,7 +11,7 @@
  * const case_data = await backend.getCase(case_id);
  */
 
-import type { ClinicalCase } from './models/ClinicalCase';
+import { MessageStage, type ClinicalCase, type Message } from './models/ClinicalCase';
 import { useUserStore } from './stores/UserStore';
 import { clinical_cases } from './models/Samples';
 
@@ -168,9 +168,8 @@ export const backend = {
 
     streamCaseMockup(
         case_id: string,
-        onMessage?: (data: any) => void,
-        onStatus?: (status: string) => void,
-        onDone?: (status: string) => void,
+        onMessage?: (message: Message) => void,
+        onDone?: (message: Message) => void,
         onError?: (error: any) => void
     ): EventSource {
         // Mock EventSource-like object that simulates SSE streaming
@@ -196,17 +195,6 @@ export const backend = {
         // Get messages from sample case, excluding the first USER message
         const sampleMessages = clinical_cases[0]!.messages.slice(1); // Skip first user message
 
-        // Build mock messages array using only the sample messages
-        const mockMessages: Array<{
-            type: 'message' | 'status' | 'done' | 'error';
-            data?: any;
-            status?: string;
-            message?: string;
-        }> = sampleMessages.map(msg => ({
-            type: 'message' as const,
-            data: msg,
-        }));
-
         // Function to send the next message
         const sendNextMessage = () => {
             if (isClosed) {
@@ -214,14 +202,14 @@ export const backend = {
             }
             
             // If all messages are sent, close the stream
-            if (messageIndex >= mockMessages.length) {
-                onDone?.('COMPLETED');
+            if (messageIndex >= sampleMessages.length) {
+                onDone?.(sampleMessages[sampleMessages.length - 1]!);
                 mockEventSource._readyState = EventSource.CLOSED;
                 isClosed = true;
                 return;
             }
 
-            const message = mockMessages[messageIndex];
+            const message = sampleMessages[messageIndex];
             if (!message) {
                 return;
             }
@@ -234,33 +222,26 @@ export const backend = {
                 }
 
                 try {
-                    switch (message.type) {
-                        case 'message':
-                            if (message.data) {
-                                onMessage?.(message.data);
-                            }
+                    switch (message.stage) {
+                        case MessageStage.THINKING:
+                            onMessage?.(message);
                             break;
-                        case 'status':
-                            if (message.status) {
-                                onStatus?.(message.status);
-                            }
-                            break;
-                        case 'done':
-                            if (message.status) {
-                                onDone?.(message.status);
-                            }
+
+                        case MessageStage.FINAL:
+                            onDone?.(message);
                             mockEventSource._readyState = EventSource.CLOSED;
                             isClosed = true;
                             return; // Stop sending more messages
+
                         case 'error':
-                            onError?.(new Error(message.message || 'Stream error'));
+                            onError?.(new Error(message.text || 'Stream error'));
                             mockEventSource._readyState = EventSource.CLOSED;
                             isClosed = true;
                             return;
                     }
 
                     // Schedule next message (vary delay between 3-5 seconds)
-                    const delay = 3000 + Math.random() * 2000;
+                    const delay = 1000 + Math.random() * 1000;
                     setTimeout(sendNextMessage, delay);
                 } catch (error) {
                     console.error('Error in mock stream:', error);
@@ -281,73 +262,6 @@ export const backend = {
         setTimeout(sendNextMessage, 100);
 
         return mockEventSource as EventSource;
-    },
-
-    /**
-     * Stream case updates via Server-Sent Events
-     * @param case_id - The case ID to stream
-     * @param onMessage - Callback for new messages
-     * @param onStatus - Callback for status updates
-     * @param onDone - Callback when streaming is complete
-     * @param onError - Callback for errors
-     * @returns EventSource object (can be closed with eventSource.close())
-     */
-    streamCase(
-        case_id: string,
-        onMessage?: (data: any) => void,
-        onStatus?: (status: string) => void,
-        onDone?: (status: string) => void,
-        onError?: (error: any) => void
-    ): EventSource {
-        // EventSource doesn't support custom headers, so we pass the token as a query parameter
-        const userStore = useUserStore();
-        const token = userStore.accessToken;
-
-        if (!token) {
-            throw new Error('Not authenticated. Please sign in.');
-        }
-
-        // Pass token as query parameter for SSE authentication
-        const url = `${API_BASE_URL}/api/cases/${case_id}/stream?token=${encodeURIComponent(token)}`;
-        const eventSource = new EventSource(url);
-
-        eventSource.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-
-                switch (data.type) {
-                    case 'message':
-                        onMessage?.(data.data);
-                        break;
-                    case 'status':
-                        onStatus?.(data.status);
-                        break;
-                    case 'done':
-                        onDone?.(data.status);
-                        eventSource.close();
-                        break;
-                    case 'error':
-                        onError?.(new Error(data.message));
-                        eventSource.close();
-                        break;
-                    case 'timeout':
-                        onError?.(new Error('Stream timeout'));
-                        eventSource.close();
-                        break;
-                }
-            } catch (error) {
-                console.error('Error parsing SSE data:', error);
-                onError?.(error);
-            }
-        };
-
-        eventSource.onerror = (error) => {
-            console.error('EventSource error:', error);
-            onError?.(error);
-            eventSource.close();
-        };
-
-        return eventSource;
     },
 
     /**

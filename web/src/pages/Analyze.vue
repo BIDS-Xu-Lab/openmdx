@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { useDataStore } from '../stores/DataStore';
 import { useCaseStore } from '../stores/CaseStore';
 import LeftSidebar from '../components/LeftSidebar.vue';
@@ -130,6 +130,28 @@ const togglePlaceholderDetails = () => {
     case_store.show_thinking = !case_store.show_thinking;
 };
 
+// Auto-scroll functionality
+const chat_body_ref = ref<HTMLElement | null>(null);
+
+const scrollToBottom = () => {
+    if (chat_body_ref.value) {
+        chat_body_ref.value.scrollTop = chat_body_ref.value.scrollHeight;
+
+        console.log('scrolled to bottom', chat_body_ref.value.scrollTop, chat_body_ref.value.scrollHeight);
+    }
+};
+
+// Also watch stream updates for typing animation
+watch(() => case_store.stream_updated_at, async () => {
+    await nextTick();
+    scrollToBottom();
+});
+
+watch(() => case_store.rendered_messages.length, async () => {
+    await nextTick();
+    scrollToBottom();
+});
+
 // Initialize case data
 onMounted(() => {
     if (case_store.clinical_case == null) {
@@ -137,6 +159,25 @@ onMounted(() => {
     }
 
     case_store.cite_popup_ref = cite_popup_ref.value;
+
+    // Start streaming if case exists and not already streaming
+    if (case_store.clinical_case && !case_store.is_streaming) {
+        // Only start streaming if there's only the user message (no agent responses yet)
+        const userMessages = case_store.clinical_case.messages.filter(
+            m => m.message_type === MessageType.USER
+        );
+        if (userMessages.length > 0 && case_store.clinical_case.messages.length === userMessages.length) {
+            case_store.startMockupStream();
+        }
+    }
+
+    // Scroll to bottom on initial mount
+    nextTick(() => scrollToBottom());
+});
+
+// Cleanup streaming on unmount
+onBeforeUnmount(() => {
+    case_store.stopStream();
 });
 </script>
 
@@ -150,8 +191,9 @@ onMounted(() => {
 <div class="main-content">
 
     <!-- Chat Body -->
-    <div class="chat-body flex-1 overflow-y-auto p-4 w-full">
-        <template v-for="message in case_store.filterRenderedMessages()" :key="message.message_id">
+    <div ref="chat_body_ref" 
+        class="chat-body flex-1 overflow-y-auto p-4 w-full">
+        <template v-for="message, message_index in case_store.filterRenderedMessages()" :key="message.message_id">
             <div v-if="['USER'].includes(message.message_type)"
                 class="message-item user-message ">
                 <div class="message-header flex justify-between items-center gap-2">
@@ -224,9 +266,16 @@ onMounted(() => {
                     </div>
                 </div>
                 
-                <div class="message-content prose max-w-none text-base/6 p-4"
-                    v-html="renderMessageText(message.text || '')" 
-                    v-cite>
+                <div class="message-content prose max-w-none text-base/6 p-4">
+                    <div v-if="case_store.is_streaming && !message.text" class="typing-indicator">
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                    </div>
+                    <div v-else
+                        v-html="renderMessageText(message.text || '')" 
+                        v-cite>
+                    </div>
                 </div>
             </div>
             
@@ -249,7 +298,8 @@ onMounted(() => {
                 <div class="message-header message-header-on-timeline p-2 flex justify-between items-center gap-2">
                     <div class="flex items-center gap-2">
                         <span class="role-icon font-medium text-sm">
-                            <font-awesome-icon icon="fa-solid fa-circle-nodes" />
+                            <font-awesome-icon icon="fa-solid fa-circle-nodes"
+                                :class="message_index == case_store.filterRenderedMessages().length - 1 && case_store.is_streaming ? 'animate-spin' : ''" />
                         </span>
                         <div class="flex flex-col">
                             <span class="text-xs">
@@ -309,6 +359,14 @@ onMounted(() => {
                             {{ message.payload_json?.tool_parameters[parameter_key] }}
                         </span>
                     </div>
+                </div>
+            </div>
+
+            <div v-if="message_index == case_store.filterRenderedMessages().length - 1 && case_store.is_streaming">
+                <div class="typing-indicator">
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
                 </div>
             </div>
         </template>
@@ -389,9 +447,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.main-container {
-}
-
 .main-content {
     min-width: 30rem;
     max-width: 60rem;
@@ -401,7 +456,7 @@ onMounted(() => {
 }
 
 .chat-body {
-    padding-bottom: 8rem;
+    padding-bottom: 50svh;
 }
 
 .chat-footer {
@@ -485,5 +540,41 @@ onMounted(() => {
 .chat-body::-webkit-scrollbar-thumb:hover,
 .evidence-body::-webkit-scrollbar-thumb:hover {
     background-color: #9ca3af;
+}
+
+/* Typing animation */
+.typing-indicator {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.typing-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--text-color);
+    opacity: 0.6;
+    animation: typing-bounce 1.4s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.typing-dot:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+@keyframes typing-bounce {
+    0%, 80%, 100% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 </style>
