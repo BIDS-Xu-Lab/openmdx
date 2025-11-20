@@ -241,7 +241,7 @@ export const backend = {
                     }
 
                     // Schedule next message (vary delay between 3-5 seconds)
-                    const delay = 1000 + Math.random() * 1000;
+                    const delay = 1000 + Math.random() * 500;
                     setTimeout(sendNextMessage, delay);
                 } catch (error) {
                     console.error('Error in mock stream:', error);

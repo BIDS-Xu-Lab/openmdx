@@ -336,7 +336,17 @@ export const useCaseStore = defineStore('case', {
                 this.addMessage(typingMessage);
                 
                 // Start typing animation
-                this.typeFinalMessage(message.text);
+                this.typeFinalMessage(
+                    message.text
+                    // + '\n\n' +
+                    // '## References' +
+                    // '\n\n' +
+                    // // concat all evidence snippets
+                    // this.evidence_snippets.map(snippet => {
+                    //     return snippet.snippet_id + '. ' + snippet.source_citation;
+                    // }).join('\n\n') + 
+                    // '\n\n'
+                );
             } else {
                 this.addMessage(message);
             }
@@ -344,7 +354,7 @@ export const useCaseStore = defineStore('case', {
 
         typeFinalMessage(fullText: string) {
             let currentIndex = 0;
-            const typingSpeed = 10; // milliseconds per character
+            const typingSpeed = 2; // milliseconds per character
 
             const typeNextChar = () => {
                 if (!this.clinical_case) return;
@@ -368,6 +378,16 @@ export const useCaseStore = defineStore('case', {
                 } else {
                     // Typing complete
                     this.final_message_typing_text = null;
+                    this.stream_updated_at = new Date().toISOString();
+
+                    // just show all the references at the end
+                    let references = "## References" + '\n\n' + this.evidence_snippets.map(snippet => {
+                        return snippet.snippet_id + '. ' + snippet.source_citation;
+                    }).join('\n\n');
+                    if (lastMessage) {
+                        lastMessage.text = fullText + '\n\n' + references;
+                    }
+                    this.clinical_case.updated_at = new Date().toISOString();
                     this.stream_updated_at = new Date().toISOString();
                 }
             };

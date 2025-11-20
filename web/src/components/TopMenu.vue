@@ -68,7 +68,8 @@ const onClickSignOut = async () => {
         </div>
         <div v-else class="flex items-center gap-3">
             <span class="text-sm">
-                Welcome, {{ userEmail }}
+                <!-- Welcome, {{ userEmail }} -->
+                Welcome, User
             </span>
             <Button size="small"
                 text

@@ -188,11 +188,10 @@ onBeforeUnmount(() => {
 
 <TopMenu />
 
-<div class="main-content">
-
-    <!-- Chat Body -->
-    <div ref="chat_body_ref" 
-        class="chat-body flex-1 overflow-y-auto p-4 w-full">
+<div ref="chat_body_ref" class="scroll-wrapper flex-1 overflow-y-auto">
+    <div class="main-content">
+        <!-- Chat Body -->
+        <div class="chat-body p-4 w-full">
         <template v-for="message, message_index in case_store.filterRenderedMessages()" :key="message.message_id">
             <div v-if="['USER'].includes(message.message_type)"
                 class="message-item user-message ">
@@ -200,6 +199,7 @@ onBeforeUnmount(() => {
                     <div class="flex items-center gap-2">
                         <span class="font-medium text-sm">
                             <font-awesome-icon icon="fa-solid fa-user" />
+                            User Message:
                         </span>
                         <span class="text-xs">
                             {{ new Date(message.created_at).toLocaleTimeString() }}
@@ -252,7 +252,7 @@ onBeforeUnmount(() => {
                             <font-awesome-icon icon="fa-solid fa-check-circle" />
                         </span>
                         <span>
-                            Results Summary
+                            Summary
                         </span>
                     </div>
                     
@@ -301,7 +301,7 @@ onBeforeUnmount(() => {
                             <font-awesome-icon icon="fa-solid fa-circle-nodes"
                                 :class="message_index == case_store.filterRenderedMessages().length - 1 && case_store.is_streaming ? 'animate-spin' : ''" />
                         </span>
-                        <div class="flex flex-col">
+                        <div class="flex flex-col text-sm/3">
                             <span class="text-xs">
                                 {{ message.payload_json?.agent_name }}
                             </span>
@@ -364,6 +364,7 @@ onBeforeUnmount(() => {
 
             <div v-if="message_index == case_store.filterRenderedMessages().length - 1 && case_store.is_streaming">
                 <div class="typing-indicator">
+                    <!-- <font-awesome-icon icon="fa-solid fa-spinner" class="animate-spin" /> -->
                     <span class="typing-dot"></span>
                     <span class="typing-dot"></span>
                     <span class="typing-dot"></span>
@@ -379,45 +380,49 @@ onBeforeUnmount(() => {
                 </p>
             </div>
         </div>
+        </div>
     </div>
+</div>
 
-    <!-- Chat Footer -->
-    <div class="chat-footer w-full border-t pl-4 pr-2 py-4">
-        <div class="flex flex-col gap-2">
-            <!-- Input area -->
-            <Textarea 
-                v-model="case_store.input_text"
-                placeholder="Type your follow-up question here..."
-                :auto-resize="true"
-                rows="1"
-                style="max-height: 10rem;"
-                class="w-full"
-                @keydown.enter.prevent="handleSubmitMessage" />
-            
-            <!-- Action buttons -->
-            <div class="flex justify-between items-center">
-                <div class="flex gap-2">
-                    <Button icon="pi pi-upload" size="small" class="p-button-text" />
-                    <Button icon="pi pi-search" size="small" class="p-button-text" />
-                </div>
-                <div class="flex gap-2">
-                    <Button 
-                        icon="pi pi-microphone" 
-                        size="small" 
-                        :class="{ 'p-button-warning': case_store.is_recording }"
-                        @click="case_store.toggleRecording" />
-                    <Button 
-                        icon="pi pi-send" 
-                        size="small" 
-                        @click="handleSubmitMessage" />
-                </div>
+<!-- Chat Footer -->
+<div class="chat-footer w-full border-t pl-4 pr-2 py-4">
+    <div class="flex flex-col gap-2">
+        <!-- Input area -->
+        <Textarea 
+            v-model="case_store.input_text"
+            placeholder="Type your follow-up question here..."
+            :auto-resize="true"
+            rows="1"
+            style="max-height: 10rem;"
+            class="w-full"
+            @keydown.enter.prevent="handleSubmitMessage" />
+        
+        <!-- Action buttons -->
+        <div class="flex justify-between items-center">
+            <div class="flex gap-2">
+                <Button icon="pi pi-upload" size="small" class="p-button-text" />
+                <Button icon="pi pi-search" size="small" class="p-button-text" />
+            </div>
+            <div class="flex gap-2">
+                <Button 
+                    icon="pi pi-microphone" 
+                    size="small" 
+                    :class="{ 'p-button-warning': case_store.is_recording }"
+                    @click="case_store.toggleRecording" />
+                <Button 
+                    icon="pi pi-send" 
+                    size="small" 
+                    @click="handleSubmitMessage" />
             </div>
         </div>
     </div>
+</div>
+
+
+
 
 </div>
 
-</div>
 
 
 
@@ -447,23 +452,30 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+.scroll-wrapper {
+    width: 100%;
+    position: relative;
+}
+
 .main-content {
     min-width: 30rem;
     max-width: 60rem;
     width: auto;
     margin: 0 auto;
-    height: calc(100svh - 3rem); /* Adjust for TopMenu height */
 }
 
 .chat-body {
-    padding-bottom: 50svh;
+    padding-bottom: 25svh;
 }
 
 .chat-footer {
     max-width: 60rem;
     position: fixed;
     bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
     background-color: var(--background-color);
+    z-index: 10;
 }
 
 .evidence-body {
@@ -489,7 +501,7 @@ onBeforeUnmount(() => {
 }
 
 .role-icon {
-    background-color: var(--border-color);
+    background-color: var(--working-background-color);
     padding: 0.25rem;
     border-radius: 0.25rem;
 }
