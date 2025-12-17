@@ -6,46 +6,14 @@ from datetime import datetime
 from typing import Optional, Annotated, Any
 from sqlalchemy import Column, JSON
 from sqlmodel import SQLModel, Field, Relationship, create_engine, Session, select
-from contextlib import contextmanager
-from fastapi import Depends
 import os
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
-# Create database engine - use Supabase PostgreSQL with SSL
-
 # Get database URL
 database_url = os.getenv("DATABASE_URL")
-
-# Configure connection arguments
-# Only add connect_args that aren't already in the URL
-connect_args = {}
-
-# Check if sslmode is already in the URL
-if "sslmode=" not in database_url:
-    connect_args["sslmode"] = "require"
-
-# Add timeout and application name
-connect_args["connect_timeout"] = 10  # 10 second timeout
-connect_args["application_name"] = "openmdx_api"  # Helps identify connections in Supabase dashboard
-
-# For debugging: check if using pooler or direct connection
-if ":6543/" in database_url:
-    print("* using connection pooler (port 6543)")
-elif ":5432/" in database_url:
-    print("* using direct connection (port 5432)")
-
-    # Only use certificate verification for direct connections if available
-    CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-    SSL_CERT_FILE = os.getenv("DATABASE_SSL_CERT", "prod-ca-2021.crt")
-    SSL_CERT_PATH = os.path.join(CURRENT_DIR, SSL_CERT_FILE) if SSL_CERT_FILE else None
-
-    if SSL_CERT_PATH and os.path.exists(SSL_CERT_PATH):
-        connect_args["sslmode"] = "verify-full"
-        connect_args["sslrootcert"] = SSL_CERT_PATH
-        print(f"* using SSL certificate from: {SSL_CERT_PATH}")
 
 engine = create_engine(
     database_url,
@@ -54,7 +22,6 @@ engine = create_engine(
     pool_size=5,  # Number of connections to maintain
     max_overflow=10,  # Maximum number of connections to create beyond pool_size
     pool_recycle=3600,  # Recycle connections after 1 hour
-    connect_args=connect_args
 )
 print("* created database engine")
 
